@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fechamento de Produção - JVM 2026</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --bg-body: #020617; --text-main: #f1f5f9; --bg-card: #0f172a; --border-card: #1e293b; --bg-header: rgba(15, 23, 42, 0.95); --bg-hover: #1e293b; --text-muted: #94a3b8; }
+        body.light-mode { --bg-body: #f1f5f9; --text-main: #0f172a; --bg-card: #ffffff; --border-card: #cbd5e1; --bg-header: rgba(255, 255, 255, 0.95); --bg-hover: #f8fafc; --text-muted: #64748b; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); transition: background-color 0.3s, color 0.3s; background-image: linear-gradient(to bottom, rgba(2, 6, 23, 0.94), rgba(2, 6, 23, 0.98)), url('https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?q=80&w=2070&auto=format&fit=crop'); background-size: cover; background-attachment: fixed; background-position: center; }
+        body.light-mode { background-image: none; }
+        .dark-card { background: var(--bg-card); border: 1px solid var(--border-card); transition: background 0.3s, border 0.3s; }
+        .glass-header { background: var(--bg-header); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border-card); }
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
+        .tab-btn.active { background-color: #2563eb; color: white; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); border-color: #2563eb; }
+        .chart-container { position: relative; height: 350px; width: 100%; }
+        .privacy-blur { color: transparent !important; text-shadow: 0 0 10px rgba(120,120,120,0.5); user-select: none; }
+        .sort-icon { cursor: pointer; opacity: 0.3; transition: opacity 0.2s; }
+        .sort-icon:hover, .sort-icon.active { opacity: 1; color: #3b82f6; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-content { width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; border-radius: 1.5rem; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        select, input { color-scheme: dark; }
+        body.light-mode select, body.light-mode input { color-scheme: light; }
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; display: inline-block; margin-right: 5px; vertical-align: middle;}
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @media print { .no-print { display: none !important; } #resumoPanel { display: block !important; width: 100% !important; border: none !important; position: static !important; } body { background: white; color: black; background-image: none !important; } }
+    </style>
+</head>
+<body class="overflow-x-hidden custom-scrollbar">
+
+<nav class="sticky top-0 z-50 glass-header px-6 py-4 flex items-center justify-between no-print shadow-xl">
+    <div class="flex items-center gap-4">
+        <div class="bg-blue-600 p-2 rounded-xl shadow-lg shadow-blue-900/50">
+            <span class="material-symbols-outlined text-white text-2xl">analytics</span>
+        </div>
+        <div>
+            <h1 class="font-black text-xl tracking-tight uppercase italic" style="color: var(--text-main)">Fechamento de <span class="text-blue-500">Produção</span></h1>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Controle de Produção . JVM 2026</p>
+        </div>
+    </div>
+
+    <div class="flex items-center gap-6">
+        <div class="p-1 rounded-xl flex no-print gap-1" style="background-color: var(--bg-card); border: 1px solid var(--border-card);">
+            <button class="tab-btn px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 active border border-transparent" id="tab-overview" onclick="switchTab('overview')">
+                <span class="material-symbols-outlined text-sm">dashboard</span> Visão Geral
+            </button>
+            <button class="tab-btn px-6 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all flex items-center gap-2 border border-transparent cursor-pointer" id="tab-analytics" onclick="switchTab('analytics')">
+                <span class="material-symbols-outlined text-sm">insert_chart</span> Estatísticas
+            </button>
+            <button class="tab-btn px-6 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all flex items-center gap-2 border border-transparent cursor-pointer" id="tab-colaboradores" onclick="switchTab('colaboradores')">
+                <span class="material-symbols-outlined text-sm">groups</span> Colaboradores
+            </button>
+        </div>
+
+        <div class="h-6 w-[1px] bg-slate-700 opacity-30"></div>
+
+        <div class="flex gap-2">
+             <button onclick="togglePrivacy()" class="p-2 rounded-xl border border-slate-700 hover:bg-slate-700 text-slate-400 transition-all" title="Ocultar Valores">
+                <span class="material-symbols-outlined" id="privacy-icon">visibility</span>
+            </button>
+             <button onclick="toggleTheme()" class="p-2 rounded-xl border border-slate-700 hover:bg-slate-700 text-slate-400 transition-all" title="Alternar Tema">
+                <span class="material-symbols-outlined" id="theme-icon">dark_mode</span>
+            </button>
+        </div>
+
+        <div class="relative group no-print">
+            <button class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all border border-slate-700 hover:brightness-110" style="background: var(--bg-card); color: var(--text-main);">
+                <span class="material-symbols-outlined text-blue-500 text-lg">sync</span> Dados
+            </button>
+            <div class="absolute right-0 mt-2 w-72 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl hidden group-hover:block overflow-hidden z-[60]">
+                <button class="w-full px-4 py-4 text-left text-xs font-bold text-white hover:bg-blue-900/30 flex items-center gap-2 border-b border-slate-800 transition-all" onclick="importFromGoogleSheets()" id="btnGoogleSheet">
+                    <span class="material-symbols-outlined text-sm text-green-400">cloud_sync</span> Sincronizar Google Sheets
+                </button>
+                <button class="w-full px-4 py-3 text-left text-xs font-bold text-slate-300 hover:bg-slate-800 flex items-center gap-2" onclick="downloadTemplate()">
+                    <span class="material-symbols-outlined text-sm text-slate-500">download</span> Baixar Modelo Excel
+                </button>
+                <button class="w-full px-4 py-3 text-left text-xs font-bold text-slate-300 hover:bg-slate-800 flex items-center gap-2" onclick="document.getElementById('importInput').click()">
+                    <span class="material-symbols-outlined text-sm">file_open</span> Importar Excel Manual
+                </button>
+                <button class="w-full px-4 py-3 text-left text-xs font-bold text-slate-300 hover:bg-slate-800 flex items-center gap-2 border-t border-slate-800" onclick="exportExcel()">
+                    <span class="material-symbols-outlined text-sm">table_view</span> Exportar Excel (.xlsx)
+                </button>
+                <button class="w-full px-4 py-3 text-left text-xs font-bold text-slate-300 hover:bg-slate-800 flex items-center gap-2" onclick="downloadDashboard()">
+                    <span class="material-symbols-outlined text-sm">html</span> Exportar Código HTML
+                </button>
+            </div>
+        </div>
+        <input type="file" id="importInput" class="hidden" accept=".xlsx, .xls" onchange="handleImport(event)">
+    </div>
+</nav>
+
+<main class="w-full max-w-[1800px] mx-auto p-8 space-y-8">
+    <div class="flex justify-between items-center no-print" id="main-filter-bar">
+        <h2 class="text-2xl font-black italic tracking-tight" style="color: var(--text-main)">Fechamento <span class="text-blue-500">2026</span></h2>
+        <div class="flex gap-4">
+             <div class="relative">
+                <select id="monthFilter" onchange="filterData()" class="bg-slate-800 border border-slate-700 rounded-xl text-sm py-2.5 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 shadow-lg cursor-pointer font-bold">
+                    <option value="ALL">Período: Semestre (Dez-Mai)</option>
+                    <option value="Dez/25">Dez/25</option>
+                    <option value="Jan/26">Jan/26</option>
+                    <option value="Fev/26">Fev/26</option>
+                    <option value="Mar/26">Mar/26</option>
+                    <option value="Abr/26">Abr/26</option>
+                    <option value="Mai/26">Mai/26</option>
+                    <option value="Jun/26">Jun/26</option>
+                    <option value="Jul/26">Jul/26</option>
+                    <option value="Ago/26">Ago/26</option>
+                    <option value="Set/26">Set/26</option>
+                    <option value="Out/26">Out/26</option>
+                    <option value="Nov/26">Nov/26</option>
+                </select>
+                <span class="material-symbols-outlined absolute right-3 top-2.5 text-slate-500 pointer-events-none text-sm">calendar_month</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 no-print">
+        <div class="dark-card p-6 rounded-3xl shadow-lg">
+            <p class="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-2">Total Despesas</p>
+            <h2 class="text-3xl font-black text-slate-100 sensitive-data" id="kpi-total-adi" style="color: var(--text-main)">R$ 0,00</h2>
+        </div>
+        <div class="dark-card p-6 rounded-3xl shadow-lg">
+            <p class="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-2">Total Produção Bruta</p>
+            <h2 class="text-3xl font-black text-slate-100 sensitive-data" id="kpi-total-prod" style="color: var(--text-main)">R$ 0,00</h2>
+        </div>
+        <div class="dark-card p-6 rounded-3xl shadow-lg border-l-4 border-l-blue-600">
+            <p class="text-[10px] font-black uppercase text-blue-500 tracking-widest mb-2">Saldo do Período</p>
+            <h2 class="text-3xl font-black text-white sensitive-data" id="kpi-total-saldo" style="color: var(--text-main)">R$ 0,00</h2>
+            <p class="text-[9px] text-slate-500 italic mt-1 font-medium">*Soma apenas saldos credores</p>
+        </div>
+        <div class="dark-card p-6 rounded-3xl shadow-lg">
+            <p class="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-2">Colaboradores Ativos</p>
+            <h2 class="text-3xl font-black text-slate-100" id="kpi-total-team" style="color: var(--text-main)">0</h2>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8" id="section-overview">
+        <div class="xl:col-span-3 dark-card rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col transition-all duration-500" id="mainTableContainer">
+            <div class="p-6 border-b border-slate-800 flex flex-col md:flex-row justify-between items-center bg-slate-900/50 gap-4" style="background-color: var(--bg-hover); border-color: var(--border-card);">
+                <div>
+                    <h3 class="text-xl font-black tracking-tight italic" style="color: var(--text-main)">Relatório de Produção</h3>
+                    <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mt-1">Dados filtrados por tomador e mês</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                    <div class="relative">
+                        <select id="empresaFilter" onchange="filterData()" class="bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold py-3 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 cursor-pointer min-w-[150px]"></select>
+                        <span class="material-symbols-outlined absolute right-3 top-3 text-slate-500 pointer-events-none text-sm">business</span>
+                    </div>
+                    <div class="relative">
+                        <select id="tomadorFilter" onchange="filterData()" class="bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold py-3 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 cursor-pointer min-w-[180px]"></select>
+                        <span class="material-symbols-outlined absolute right-3 top-3 text-slate-500 pointer-events-none text-sm">filter_alt</span>
+                    </div>
+                    <div class="relative">
+                        <input type="text" id="tableSearch" onkeyup="filterData()" class="pl-10 pr-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold w-64 focus:ring-2 focus:ring-blue-500 outline-none text-white shadow-inner" placeholder="BUSCAR COLABORADOR...">
+                        <span class="material-symbols-outlined absolute left-3 top-3 text-slate-500 text-sm">search</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto custom-scrollbar flex-1">
+                <table class="w-full text-left border-collapse" id="mainTable">
+                    <thead class="bg-slate-900 text-[11px] font-black text-slate-500 uppercase tracking-[0.1em] border-b border-slate-800" style="background: var(--bg-card); border-color: var(--border-card);">
+                        <tr>
+                            <th class="px-6 py-5 w-32">Empresa</th>
+                            <th class="px-6 py-5"><div class="flex items-center gap-1 cursor-pointer hover:text-white" onclick="sortData('name')">Colaborador <span class="material-symbols-outlined text-sm sort-icon" id="sort-name">unfold_more</span></div></th>
+                            <th class="px-6 py-5 w-48"><div class="flex items-center gap-1 cursor-pointer hover:text-white" onclick="sortData('tomador')">Tomador <span class="material-symbols-outlined text-sm sort-icon" id="sort-tomador">unfold_more</span></div></th>
+                            <th class="px-6 py-5 text-right"><div class="flex items-center justify-end gap-1 cursor-pointer hover:text-white" onclick="sortData('despesa')">Despesas Totais <span class="material-symbols-outlined text-sm sort-icon" id="sort-despesa">unfold_more</span></div></th>
+                            <th class="px-6 py-5 text-right"><div class="flex items-center justify-end gap-1 cursor-pointer hover:text-white" onclick="sortData('producao')">Produção <span class="material-symbols-outlined text-sm sort-icon" id="sort-producao">unfold_more</span></div></th>
+                            <th class="px-6 py-5 text-right font-bold text-blue-400"><div class="flex items-center justify-end gap-1 cursor-pointer hover:text-white" onclick="sortData('saldo')">Saldo <span class="material-symbols-outlined text-sm sort-icon" id="sort-saldo">unfold_more</span></div></th>
+                            <th class="px-6 py-5 text-center w-24">Resumo</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800 text-sm font-medium" id="tableBody" style="border-color: var(--border-card);"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="bg-slate-900 rounded-[2.5rem] shadow-2xl border border-slate-800 overflow-hidden flex flex-col min-h-[750px] sticky top-24 hidden animate-in slide-in-from-right duration-300" id="resumoPanel" style="background: var(--bg-card); border-color: var(--border-card);">
+            <div class="p-8 bg-black/40 text-white relative" id="resumoHeader">
+                <button onclick="closeSidePanel()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-white/10 p-1 rounded-full"><span class="material-symbols-outlined">close</span></button>
+                <div class="flex justify-between items-start mb-4">
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-blue-500">Extrato Detalhado</span>
+                    <span class="bg-blue-600 text-[9px] font-black px-2 py-1 rounded text-white">MENSAL</span>
+                </div>
+                <h4 class="text-xl font-black tracking-tight leading-none text-white" id="resumoName">NOME DO COLABORADOR</h4>
+                <div class="flex gap-2 mt-3">
+                     <span class="text-[10px] font-bold uppercase px-3 py-1 rounded-full bg-slate-700 text-slate-300" id="resumoEmpresaTag">G Lux</span>
+                     <span class="text-[10px] font-bold uppercase px-3 py-1 rounded-full bg-slate-700 text-slate-300" id="resumoTomadorTag">Tomador</span>
+                </div>
+                <div class="mt-6 pt-6 border-t border-white/10" id="resumoSaldoFinal">
+                    <p class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">Saldo Final Filtrado</p>
+                    <h2 class="text-4xl font-black text-emerald-500 sensitive-data" id="resumoValueFinal">R$ 0,00</h2>
+                    <p class="text-[10px] text-rose-400 italic mt-1 font-medium" id="resumoNegativeNotice"></p>
+                </div>
+            </div>
+            <div class="flex-1 overflow-y-auto p-6 custom-scrollbar space-y-4" id="resumoContent"></div>
+            <div class="p-6 border-t border-slate-800 bg-black/20 flex gap-3 no-print" id="resumoFooter">
+                <button class="flex-1 bg-slate-800 border border-slate-700 py-4 rounded-2xl text-xs font-black text-slate-300 hover:bg-slate-700 transition-all flex items-center justify-center gap-2" onclick="window.print()">
+                    <span class="material-symbols-outlined text-sm">print</span> Imprimir Extrato
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="space-y-8 animate-in fade-in duration-500 hidden" id="section-analytics">
+        <div class="flex justify-between items-center mb-4"><div><h4 class="text-xl font-black tracking-tight" style="color: var(--text-main)">Análise Gerencial</h4><p class="text-xs text-slate-500 font-medium">Indicadores de desempenho e tendências.</p></div></div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="dark-card p-8 rounded-[2rem] shadow-xl lg:col-span-2">
+                <h4 class="text-xs font-black uppercase tracking-widest mb-4 flex items-center gap-2" style="color: var(--text-muted)">
+                    <span class="material-symbols-outlined text-blue-500 text-lg">trending_up</span> Evolução Financeira
+                </h4>
+            
+                <div class="flex flex-wrap gap-3 mb-6">
+                    <div class="relative">
+                        <select id="trendEmpresaFilter" onchange="filterData()"
+                            class="bg-slate-800 border border-slate-700 rounded-xl text-[11px] font-black py-2.5 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 cursor-pointer min-w-[160px]">
+                        </select>
+                        <span class="material-symbols-outlined absolute right-3 top-2.5 text-slate-500 pointer-events-none text-sm">business</span>
+                    </div>
+            
+                    <div class="relative">
+                        <select id="trendColabFilter" onchange="filterData()"
+                            class="bg-slate-800 border border-slate-700 rounded-xl text-[11px] font-black py-2.5 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 cursor-pointer min-w-[220px]">
+                        </select>
+                        <span class="material-symbols-outlined absolute right-3 top-2.5 text-slate-500 pointer-events-none text-sm">groups</span>
+                    </div>
+            
+                    <div class="relative">
+                        <select id="trendPeriodFilter" onchange="filterData()"
+                            class="bg-slate-800 border border-slate-700 rounded-xl text-[11px] font-black py-2.5 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 cursor-pointer min-w-[190px]">
+                        </select>
+                        <span class="material-symbols-outlined absolute right-3 top-2.5 text-slate-500 pointer-events-none text-sm">calendar_month</span>
+                    </div>
+                </div>
+            
+                <div class="h-72"><canvas id="chartTrend"></canvas></div>
+            </div>
+            <div class="dark-card p-8 rounded-[2rem] shadow-xl"><h4 class="text-xs font-black uppercase tracking-widest mb-6 flex items-center gap-2" style="color: var(--text-muted)"><span class="material-symbols-outlined text-emerald-500 text-lg">leaderboard</span> Top 10 Ranking</h4><div class="h-72"><canvas id="chartRanking"></canvas></div></div>
+            <div class="dark-card p-8 rounded-[2rem] shadow-xl lg:col-span-2"><h4 class="text-xs font-black uppercase tracking-widest mb-6 flex items-center gap-2" style="color: var(--text-muted)"><span class="material-symbols-outlined text-amber-500 text-lg">stacked_bar_chart</span> Mix de Produção</h4><div class="h-64"><canvas id="chartMix"></canvas></div></div>
+            <div class="dark-card p-8 rounded-[2rem] shadow-xl"><h4 class="text-xs font-black uppercase tracking-widest mb-6 flex items-center gap-2" style="color: var(--text-muted)"><span class="material-symbols-outlined text-purple-500 text-lg">donut_small</span> Share por Empresa</h4><div class="h-64"><canvas id="chartShare"></canvas></div></div>
+        </div>
+    </div>
+
+    <div class="space-y-8 animate-in fade-in duration-500 hidden" id="section-colaboradores">
+        <div class="dark-card rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-800">
+            <div class="p-6 border-b border-slate-800 flex flex-col md:flex-row justify-between items-center bg-slate-900/50 gap-4" style="background-color: var(--bg-hover); border-color: var(--border-card);">
+                <div>
+                    <h4 class="text-xl font-black tracking-tight" style="color: var(--text-main)">Gestão de Colaboradores</h4>
+                    <p class="text-xs text-slate-500 font-medium">Edite, adicione ou remova registros.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                    <button onclick="openEditModal('NEW')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-xl text-xs font-bold flex items-center gap-2 transition-all mr-2 shadow-lg shadow-blue-900/20">
+                        <span class="material-symbols-outlined text-sm">person_add</span> NOVO
+                    </button>
+                    
+                    <div class="h-8 w-[1px] bg-slate-700 opacity-30 mx-1 hidden md:block"></div>
+
+                    <div class="relative">
+                        <select id="colabEmpresaFilter" onchange="renderColaboradores()" class="bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold py-3 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 cursor-pointer min-w-[150px]"></select>
+                        <span class="material-symbols-outlined absolute right-3 top-3 text-slate-500 pointer-events-none text-sm">business</span>
+                    </div>
+                    <div class="relative">
+                        <select id="colabTomadorFilter" onchange="renderColaboradores()" class="bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold py-3 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 cursor-pointer min-w-[180px]"></select>
+                        <span class="material-symbols-outlined absolute right-3 top-3 text-slate-500 pointer-events-none text-sm">filter_alt</span>
+                    </div>
+                    <div class="relative">
+                        <input type="text" id="colabSearch" onkeyup="renderColaboradores()" class="pl-10 pr-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold w-64 focus:ring-2 focus:ring-blue-500 outline-none text-white shadow-inner" placeholder="BUSCAR COLABORADOR...">
+                        <span class="material-symbols-outlined absolute left-3 top-3 text-slate-500 text-sm">search</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-900/50 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-slate-800" style="background: var(--bg-card);">
+                        <tr>
+                            <th class="px-6 py-5 cursor-pointer hover:text-white transition-colors" onclick="sortColabData('name')">
+                                <div class="flex items-center gap-1">Nome Completo <span class="material-symbols-outlined text-sm sort-icon" id="sort-colab-name">unfold_more</span></div>
+                            </th>
+                            <th class="px-6 py-5 cursor-pointer hover:text-white transition-colors" onclick="sortColabData('empresa')">
+                                <div class="flex items-center gap-1">Última Empresa <span class="material-symbols-outlined text-sm sort-icon" id="sort-colab-empresa">unfold_more</span></div>
+                            </th>
+                            <th class="px-6 py-5 cursor-pointer hover:text-white transition-colors" onclick="sortColabData('tomador')">
+                                <div class="flex items-center gap-1">Último Tomador <span class="material-symbols-outlined text-sm sort-icon" id="sort-colab-tomador">unfold_more</span></div>
+                            </th>
+                            <th class="px-6 py-5 text-center cursor-pointer hover:text-white transition-colors" onclick="sortColabData('count')">
+                                <div class="flex items-center justify-center gap-1">Registros (Meses) <span class="material-symbols-outlined text-sm sort-icon" id="sort-colab-count">unfold_more</span></div>
+                            </th>
+                            <th class="px-6 py-5 text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="colaboradoresTableBody" class="divide-y divide-slate-800 text-sm font-medium" style="border-color: var(--border-card);"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal-overlay">
+        <div class="dark-card modal-content p-8">
+            <div class="flex justify-between items-start mb-6"><h3 class="text-xl font-black text-white" id="modalTitle">Editar Colaborador</h3><button onclick="closeEditModal()" class="text-slate-400 hover:text-white"><span class="material-symbols-outlined">close</span></button></div>
+            <div class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="text-xs font-bold text-slate-500 uppercase">Nome Completo</label><input type="text" id="editName" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white mt-1 uppercase"></div><div><label class="text-xs font-bold text-slate-500 uppercase">Ação</label><div class="mt-1"><button onclick="addMonthRow()" class="text-xs bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-lg flex items-center gap-1 w-full justify-center"><span class="material-symbols-outlined text-sm">calendar_add_on</span> Adicionar Mês</button></div></div></div>
+                <div id="monthRowsContainer" class="space-y-4 max-h-[60vh] overflow-y-auto custom-scrollbar pr-2"></div>
+                <div class="flex justify-end gap-3 pt-4 border-t border-slate-800"><button onclick="deleteEmployeeFromModal()" id="btnDeleteEmployee" class="bg-rose-900/50 hover:bg-rose-900 text-rose-200 border border-rose-800 px-4 py-2 rounded-xl text-sm font-bold">Excluir Colaborador</button><div class="flex-1"></div><button onclick="closeEditModal()" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-xl text-sm font-bold">Cancelar</button><button onclick="saveEmployee()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-xl text-sm font-bold flex items-center gap-2"><span class="material-symbols-outlined text-sm">save</span> Salvar Alterações</button></div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+    let isPrivacyMode = false;
+    let isLightMode = false;
+    let currentSort = { column: 'name', direction: 'asc' };
+
+    let database = [
+        { mes: "Dez/25", empresa: "G Lux", name: "JEFERSON ALVES RIBEIRO", tomador: "EQUATORIAL MA", censo_q: 0, censo_v: 0, fisc_q: 5601, fisc_v: 14002.5, despesa_total: 2275, premiacao: 260, deslocamento: 2015 },
+        { mes: "Dez/25", empresa: "G Lux", name: "LEOMAR HENRIQUE DA SILVA", tomador: "EQUATORIAL PI", censo_q: 2133, censo_v: 2772.9, fisc_q: 0, fisc_v: 0, despesa_total: 982.5, premiacao: 0, deslocamento: 982.5 },
+        { mes: "Dez/25", empresa: "G Lux", name: "LISARBE LIMA DE SOUZA PASSOS", tomador: "EQUATORIAL PI", censo_q: 2417, censo_v: 3142.1, fisc_q: 0, fisc_v: 0, despesa_total: 1900, premiacao: 0, deslocamento: 1900 },
+        { mes: "Dez/25", empresa: "G Lux", name: "MANOEL NETO MAIA SILVA", tomador: "EQUATORIAL AL", censo_q: 2876, censo_v: 3738.8, fisc_q: 0, fisc_v: 0, despesa_total: 1861, premiacao: 0, deslocamento: 1861 },
+        { mes: "Dez/25", empresa: "G Lux", name: "NEITON CARLOS DA SILVA OLIVEIRA", tomador: "EQUATORIAL PI", censo_q: 0, censo_v: 0, fisc_q: 4800, fisc_v: 12000, despesa_total: 1980, premiacao: 0, deslocamento: 1980 },
+        { mes: "Dez/25", empresa: "G Lux", name: "SAMUEL DA SILVA BRITO", tomador: "EQUATORIAL MA", censo_q: 0, censo_v: 0, fisc_q: 4001, fisc_v: 10002.5, despesa_total: 2240, premiacao: 0, deslocamento: 2240 },
+        { mes: "Dez/25", empresa: "G Lux", name: "WAGNER TAIRONE DE SANTANA SANTOS", tomador: "EQUATORIAL AL", censo_q: 2144, censo_v: 2787.2, fisc_q: 0, fisc_v: 0, despesa_total: 1945, premiacao: 0, deslocamento: 1945 },
+        { mes: "Dez/25", empresa: "G Lux", name: "WODSON AMORIM LEITE", tomador: "EQUATORIAL AL", censo_q: 3530, censo_v: 4589, fisc_q: 0, fisc_v: 0, despesa_total: 2895, premiacao: 1000, deslocamento: 1895 },
+        { mes: "Dez/25", empresa: "JVM", name: "ANDERSON ANACLETO FRANÇA DE JESUS", tomador: "EQUATORIAL GO", censo_q: 0, censo_v: 0, fisc_q: 4235, fisc_v: 11858, despesa_total: 2030, premiacao: 0, deslocamento: 2030},
+        { mes: "Dez/25", empresa: "JVM", name: "ELIEL SANTOS DE JESUS", tomador: "ENERGISA PB", censo_q: 2649, censo_v: 3443.7, fisc_q : 0, fisc_v: 0, despesa_total: 1915, premiacao: 0, deslocamento: 1915},
+        { mes: "Dez/25", empresa: "JVM", name: "GETULIO BATISTA DE OLIVEIRA JUNIOR", tomador: "ENERGISA PB", censo_q: 2773, censo_v: 3604.9, fisc_q: 608, fisc_v: 1702.4, despesa_total: 6147, premiacao: 0, deslocamento: 6147},
+        { mes: "Dez/25", empresa: "JVM", name: "ISAEL FERREIRA BAIA", tomador: "MACAPÁ", censo_q: 0, censo_v: 0, fisc_q: 0, fisc_v: 0, despesa_total: 735.6, premiacao: 735.6, deslocamento:0},
+        { mes: "Dez/25", empresa: "JVM", name: "JONATHAS FREITAS DA BOA MORTE", tomador: "EQUATORIAL GO", censo_q: 0, censo_v: 0, fisc_q: 4459, fisc_v: 12485.2, despesa_total: 2030, premiacao: 0, deslocamento: 2030},
+        { mes: "Dez/25", empresa: "JVM", name: "JOSENILTON ALVES DA SILVA", tomador: "SUPERVISOR", censo_q: 0, censo_v: 0, fisc_q: 0, fisc_v: 0, despesa_total: 0, premiacao: 0, deslocamento: 0},
+        { mes: "Dez/25", empresa: "JVM", name: "MARCELO ALMEIDA DOS SANTOS", tomador:"FISCALIZAÇÃO RS", censo_q: 0, censo_v: 0, fisc_q: 1819, fisc_v: 5093.2, despesa_total: 43075.09, premiacao: 41045, deslocamento: 2030},
+        { mes: "Dez/25", empresa: "JVM", name: "MIQUEIAS SANTOS PINHO", tomador:"ENERGISA PB", censo_q: 1551, censo_v: 2016.3, fisc_q: 0, fisc_v: 0, despesa_total: 1907.5, premiacao: 0,deslocamento: 1907.5},
+        { mes: "Dez/25", empresa: "JVM", name: "RODRIGO ARAUJO BARRIGA", tomador:"MACAPÁ", censo_q: 0, censo_v: 0, fisc_q: 0, fisc_v: 0, despesa_total: 940.59, premiacao: 735.6, deslocamento: 204.99},
+        { mes: "Dez/25", empresa: "JVM", name: "UNIEVERTON CARLOS DA SILVA", tomador:"ENERGISA PB", censo_q: 1874, censo_v: 2436.2, fisc_q: 0, fisc_v: 0, despesa_total: 1907.5, premiacao: 0, deslocamento: 1907.5}
+    ];
+
+    let chartInstances = {};
+
+    async function init() {
+        // Tenta sempre buscar a base mais recente da planilha ao abrir o site.
+        // Se falhar (offline/CORS/etc.), cai para a base embutida (savedDatabase), se existir.
+        let loaded = false;
+        try {
+            await importFromGoogleSheets(true); // silent = true (sem alertas/sem alterar botão)
+            loaded = true;
+        } catch (e) {
+            console.warn('Falha ao carregar Google Sheets na inicialização. Usando base local, se existir.', e);
+        }
+
+        if (!loaded && window.savedDatabase) database = window.savedDatabase;
+
+        populateFilters();
+        populateColabFilters();
+        populateTrendFilters();
+        filterData();
+        checkTheme();
+    }
+
+    // --- IMPORTAÇÃO AUTO-DETECTADA ---
+    async function importFromGoogleSheets(silent=false) {
+        const btn = document.getElementById('btnGoogleSheet');
+        const originalText = (btn && btn.innerHTML) ? btn.innerHTML : '';
+        // Fonte de dados (recomendado: URL do seu Google Apps Script Web App).
+        // Você pode trocar este valor sem alterar nada do visual/estrutura do painel.
+        // Exemplo (Apps Script): https://script.google.com/macros/s/XXXX/exec
+        // Exemplo (Sheets publicado): https://docs.google.com/spreadsheets/d/e/.../pub?output=csv
+        const DATA_SOURCE_BASE = (window.DATA_SOURCE_URL && String(window.DATA_SOURCE_URL).trim())
+            ? String(window.DATA_SOURCE_URL).trim()
+            : 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSFttYGzkgH-6VxHYrTAz7ChIRdk3j2ZnP1GpF7OVzX4HJ-D9bfEgiorhJIasGHBbF0CQh6MXEgKEpx/pub?output=csv';
+
+        // Anti-cache para sempre puxar o mais recente
+        const csvUrl = DATA_SOURCE_BASE.includes('?')
+            ? `${DATA_SOURCE_BASE}&t=${Date.now()}`
+            : `${DATA_SOURCE_BASE}?t=${Date.now()}`;
+
+        // Estratégia de fetch:
+        // 1) tenta direto (funciona bem com Apps Script)
+        // 2) se falhar por CORS (com Sheets), tenta via proxy como fallback
+        const directUrl = csvUrl;
+        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(csvUrl)}`;
+
+        try {
+            if(!silent && btn) {
+                btn.innerHTML = `<div class="loader"></div> Baixando dados...`;
+                btn.disabled = true;
+                document.body.style.cursor = 'wait';
+            }
+
+            let response;
+            try {
+                response = await fetch(directUrl, { cache: 'no-store' });
+            } catch (e) {
+                response = null;
+            }
+            if (!response || !response.ok) {
+                response = await fetch(proxyUrl, { cache: 'no-store' });
+            }
+            if (!response.ok) throw new Error(`Status ${response.status}`);
+            const rawText = await response.text();
+
+            if (!rawText || rawText.length < 10) throw new Error("Arquivo vazio");
+
+            // Força o SheetJS a ler como texto puro
+            const workbook = XLSX.read(rawText, { type: 'string', raw: true });
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+            // DETECÇÃO DE CABEÇALHO (Procura onde está a linha com 'Nome' e 'Mês')
+            let headerRowIndex = -1;
+            let colIndexName = -1;
+            let colIndexMes = -1;
+
+            // Varre as primeiras 10 linhas procurando cabeçalho
+            for(let r=0; r<Math.min(jsonData.length, 10); r++) {
+                const row = jsonData[r];
+                if(!row) continue;
+                // Procura coluna com "NOME" ou "COLABORADOR"
+                const idxName = row.findIndex(cell => cell && String(cell).toUpperCase().includes('NOME'));
+                const idxMes = row.findIndex(cell => cell && (String(cell).toUpperCase().includes('MÊS') || String(cell).toUpperCase().includes('MES')));
+                
+                if(idxName > -1 && idxMes > -1) {
+                    headerRowIndex = r;
+                    colIndexName = idxName;
+                    colIndexMes = idxMes;
+                    break;
+                }
+            }
+
+            // Se não achou cabeçalho, tenta usar índices fixos (0=Mês, 2=Nome)
+            if(headerRowIndex === -1) {
+                headerRowIndex = 0;
+                colIndexMes = 0;
+                colIndexName = 2;
+                console.warn("Cabeçalho não encontrado automaticamente. Usando padrão (0=Mês, 2=Nome).");
+            }
+
+            let novos = 0, atualizados = 0;
+
+            // IMPORTAÇÃO COMPLETA: monta uma nova base a partir do Sheets e substitui a base atual ao final.
+            const newDatabase = [];
+
+            const cleanNum = (val) => {
+                if (!val) return 0;
+                let v = String(val).replace('R$', '').replace(/\s/g, '').trim();
+                if (v.includes(',') && v.includes('.')) v = v.replace(/\./g, '').replace(',', '.');
+                else if (v.includes(',')) v = v.replace(',', '.');
+                return parseFloat(v) || 0;
+            };
+            const cleanStr = (val) => String(val || "").replace(/['"]/g, '').trim();
+
+            for(let i = headerRowIndex + 1; i < jsonData.length; i++) {
+                const row = jsonData[i];
+                if(!row) continue;
+
+                // Usa os índices detectados dinamicamente
+                const nome = cleanStr(row[colIndexName]).toUpperCase();
+                const mes = cleanStr(row[colIndexMes]);
+
+                if(nome.length < 3) continue; // Nome muito curto ou vazio
+
+                const newRecord = {
+                    mes: mes,
+                    empresa: cleanStr(row[1] || "G Lux"), // Empresa costuma ser col 1
+                    name: nome,
+                    tomador: cleanStr(row[3]).toUpperCase(),
+                    censo_q: cleanNum(row[4]),
+                    censo_v: cleanNum(row[5]),
+                    fisc_q: cleanNum(row[6]),
+                    fisc_v: cleanNum(row[7]),
+                    despesa_total: cleanNum(row[8]),
+                    premiacao: cleanNum(row[9]),
+                    deslocamento: cleanNum(row[10])
+                };
+
+                // Chave composta: (mês + nome + tomador). Isso permite que o mesmo colaborador tenha produção em mais de um tomador no mesmo mês.
+                const existingIdx = newDatabase.findIndex(d =>
+                    d.mes === newRecord.mes &&
+                    d.name === newRecord.name &&
+                    d.tomador === newRecord.tomador
+                );
+
+                if(existingIdx >= 0) {
+                    // Se vierem linhas repetidas para o mesmo (mês,nome,tomador), acumulamos os valores (não sobrescreve).
+                    const ex = newDatabase.splice(existingIdx, 1)[0];
+                    ex.empresa = newRecord.empresa || ex.empresa;
+                    ex.censo_q = (ex.censo_q || 0) + (newRecord.censo_q || 0);
+                    ex.censo_v = (ex.censo_v || 0) + (newRecord.censo_v || 0);
+                    ex.fisc_q  = (ex.fisc_q  || 0) + (newRecord.fisc_q  || 0);
+                    ex.fisc_v  = (ex.fisc_v  || 0) + (newRecord.fisc_v  || 0);
+                    ex.despesa_total = (ex.despesa_total || 0) + (newRecord.despesa_total || 0);
+                    ex.premiacao     = (ex.premiacao     || 0) + (newRecord.premiacao     || 0);
+                    ex.deslocamento  = (ex.deslocamento  || 0) + (newRecord.deslocamento  || 0);
+                    // Move para o final para refletir a última atualização (tomador atual = última linha do Sheets)
+                    newDatabase.push(ex);
+                    atualizados++;
+                } else {
+                    newDatabase.push(newRecord);
+                    novos++;
+                }
+            }
+
+            if(novos === 0 && atualizados === 0) {
+                // MODO DEBUG: Se não achou nada, mostra o que veio na linha 1 e 2
+                alert(`⚠️ Atenção: O arquivo foi baixado mas nenhum dado foi identificado.\n\nPrimeira linha do arquivo:\n${JSON.stringify(jsonData[0] || "Vazia")}\n\nVerifique se as colunas 'Mês' e 'Nome' existem.`);
+            } else {
+                // Substitui a base inteira pela importada do Google Sheets (evita duplicação com dados embutidos no HTML)
+                database = newDatabase;
+                populateFilters(); populateColabFilters(); populateTrendFilters(); filterData();
+                if(document.getElementById('tab-colaboradores').classList.contains('active')) renderColaboradores();
+                if(!silent) alert(`✅ SUCESSO!\n\nNovos: ${novos}\nAtualizados: ${atualizados}`);
+            }
+
+        } catch (error) {
+            console.error(error);
+            if(!silent) alert(`❌ ERRO CRÍTICO: ${error.message}`);
+        } finally {
+            if(!silent && btn) { btn.innerHTML = originalText; btn.disabled = false; document.body.style.cursor = 'default'; }
+        }
+    }
+
+    // --- UTILS & CORE ---
+    function getCompanyBadgeClass(empresa) { const n = empresa.toUpperCase(); if (n.includes('G LUX') || n.includes('GLUX')) return 'bg-emerald-900/40 text-emerald-400 border border-emerald-900/50'; return 'bg-slate-700/50 text-slate-300 border border-slate-600'; }
+    function getTomadorBadgeClass(tomador) { if (tomador === 'DESLIGADO') return 'bg-rose-900/40 text-rose-400 border border-rose-900/50'; if (tomador === 'EM CASA') return 'bg-amber-900/20 text-amber-500 border border-amber-900/30'; return 'bg-blue-900/30 text-blue-400 border border-blue-900/40'; }
+    function sortData(column) { if (currentSort.column === column) currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc'; else { currentSort.column = column; currentSort.direction = 'asc'; } document.querySelectorAll('.sort-icon').forEach(icon => { icon.classList.remove('active'); icon.innerText = 'unfold_more'; }); const activeIcon = document.getElementById(`sort-${column}`); if(activeIcon) { activeIcon.classList.add('active'); activeIcon.innerText = currentSort.direction === 'asc' ? 'expand_less' : 'expand_more'; } filterData(); }
+    function applySort(data) { const { column, direction } = currentSort; const m = direction === 'asc' ? 1 : -1; return data.sort((a, b) => { let valA, valB; switch(column) { case 'name': valA = a.name; valB = b.name; break; case 'tomador': valA = a.tomador; valB = b.tomador; break; case 'despesa': valA = a.adiantamento; valB = b.adiantamento; break; case 'producao': valA = a.producao; valB = b.producao; break; case 'saldo': valA = a.saldo; valB = b.saldo; break; default: return 0; } if (typeof valA === 'string') return valA.localeCompare(valB) * m; return (valA - valB) * m; }); }
+
+    function populateFilters() { const t = document.getElementById('tomadorFilter'); const e = document.getElementById('empresaFilter'); const ut = ["TODOS", ...new Set(database.map(i => i.tomador))]; const ue = ["TODOS", ...new Set(database.map(i => i.empresa))]; t.innerHTML = ''; ut.forEach(v => t.innerHTML += `<option value="${v}">Tomador: ${v}</option>`); t.value = "TODOS"; e.innerHTML = ''; ue.forEach(v => e.innerHTML += `<option value="${v}">Empresa: ${v}</option>`); e.value = "TODOS"; }
+
+    function populateTrendFilters() {
+        const empSel = document.getElementById('trendEmpresaFilter');
+        const colSel = document.getElementById('trendColabFilter');
+        const perSel = document.getElementById('trendPeriodFilter');
+        if (!empSel || !colSel || !perSel) return;
+
+        const currentEmp = empSel.value || "TODOS";
+        const currentCol = colSel.value || "TODOS";
+        const currentPer = perSel.value || "ALL";
+
+        const empresas = ["TODOS", ...new Set(database.map(r => r.empresa))].sort();
+        
+        // --- ALTERAÇÃO AQUI: Ordena nomes e força TODOS no topo ---
+        let colabNames = [...new Set(database.map(r => r.name))];
+        colabNames.sort(); // Ordena alfabeticamente
+        const colabs = ["TODOS", ...colabNames]; // Adiciona TODOS no início
+        // ----------------------------------------------------------
+
+        const monthOrder = ["Dez/25", "Jan/26", "Fev/26", "Mar/26", "Abr/26", "Mai/26", "Jun/26", "Jul/26", "Ago/26", "Set/26", "Out/26", "Nov/26"];
+        const mesesDb = [...new Set(database.map(r => r.mes))];
+        mesesDb.sort((a,b) => monthOrder.indexOf(a) - monthOrder.indexOf(b));
+
+        empSel.innerHTML = "";
+        empresas.forEach(v => empSel.innerHTML += `<option value="${v}">Empresa: ${v}</option>`);
+        empSel.value = empresas.includes(currentEmp) ? currentEmp : "TODOS";
+
+        colSel.innerHTML = "";
+        colabs.forEach(v => colSel.innerHTML += `<option value="${v}">Colaborador: ${v}</option>`);
+        colSel.value = colabs.includes(currentCol) ? currentCol : "TODOS";
+
+        perSel.innerHTML = "";
+        perSel.innerHTML += `<option value="ALL">Período: Todos</option>`;
+        mesesDb.forEach(v => perSel.innerHTML += `<option value="${v}">${v}</option>`);
+        perSel.value = (currentPer === "ALL" || mesesDb.includes(currentPer)) ? currentPer : "ALL";
+    }
+
+    function filterData() {
+        const mf = document.getElementById('monthFilter').value;
+        const tf = document.getElementById('tomadorFilter').value;
+        const ef = document.getElementById('empresaFilter').value;
+        const q = document.getElementById('tableSearch').value.toLowerCase();
+        let agg = {};
+        database.forEach(row => {
+            if (mf !== "ALL" && row.mes !== mf) return;
+            if (q && !row.name.toLowerCase().includes(q)) return;
+            if (tf !== "TODOS" && row.tomador !== tf) return;
+            if (ef !== "TODOS" && row.empresa !== ef) return;
+            if (!agg[row.name]) agg[row.name] = { name: row.name, empresa: row.empresa, tomador: row.tomador, adiantamento: 0, producao: 0, saldo: 0, history: [] };
+            agg[row.name].tomador = row.tomador; agg[row.name].empresa = row.empresa;
+            const tp = (row.censo_v || 0) + (row.fisc_v || 0); const td = (row.despesa_total || 0);
+            agg[row.name].adiantamento += td; agg[row.name].producao += tp; agg[row.name].saldo += (tp - td); agg[row.name].history.push(row);
+        });
+        let list = Object.values(agg); list = applySort(list); updateKPIs(list); renderTable(list);
+        if(document.getElementById('tab-analytics').classList.contains('active')) renderCharts(list);
+    }
+
+    function updateKPIs(data) { document.getElementById('kpi-total-adi').innerText = fmt.format(data.reduce((s, i) => s + i.adiantamento, 0)); document.getElementById('kpi-total-prod').innerText = fmt.format(data.reduce((s, i) => s + i.producao, 0)); document.getElementById('kpi-total-saldo').innerText = fmt.format(data.reduce((s, i) => s + (i.saldo > 0 ? i.saldo : 0), 0)); document.getElementById('kpi-total-team').innerText = data.length; }
+
+    function renderTable(data) {
+        const body = document.getElementById('tableBody'); body.innerHTML = '';
+        if(data.length === 0) { body.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-500 italic">Nenhum dado encontrado.</td></tr>`; return; }
+        data.forEach((item) => {
+            const row = document.createElement('tr'); row.className = "hover:bg-slate-800 transition-all group border-slate-800"; row.style.borderColor = "var(--border-card)"; row.style.backgroundColor = "transparent";
+            const isNeg = item.saldo < 0; const sColor = isNeg ? 'text-rose-400 font-bold italic' : 'text-emerald-500 font-black';
+            row.innerHTML = `<td class="px-6 py-4"><span class="text-[10px] font-black uppercase px-3 py-1.5 rounded-full ${getCompanyBadgeClass(item.empresa)}">${item.empresa}</span></td><td class="px-6 py-4"><div class="font-black text-slate-100" style="color: var(--text-main)">${item.name}</div><div class="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Controle . JVM</div></td><td class="px-6 py-4 whitespace-nowrap"><span class="text-[10px] font-black uppercase px-3 py-1 rounded-full ${getTomadorBadgeClass(item.tomador)}">${item.tomador}</span></td><td class="px-6 py-4 text-right font-mono text-slate-400 sensitive-data font-medium">${fmt.format(item.adiantamento)}</td><td class="px-6 py-4 text-right font-mono text-slate-400 sensitive-data font-medium">${fmt.format(item.producao)}</td><td class="px-6 py-4 text-right font-mono ${sColor} sensitive-data text-sm">${fmt.format(item.saldo)}</td><td class="px-6 py-4 text-center"><button onclick="toggleSidePanel('${item.name}')" class="p-2 rounded-full hover:bg-blue-500/20 text-slate-500 hover:text-blue-500 transition-all"><span class="material-symbols-outlined text-lg">visibility</span></button></td>`;
+            body.appendChild(row);
+        });
+        applyPrivacy();
+    }
+
+    // --- Lógica de Filtro e Ordenação da Aba Colaboradores ---
+    let currentColabSort = { column: 'name', direction: 'asc' };
+
+    function populateColabFilters() {
+        const t = document.getElementById('colabTomadorFilter');
+        const e = document.getElementById('colabEmpresaFilter');
+        
+        const currentT = t.value;
+        const currentE = e.value;
+
+        const ut = ["TODOS", ...new Set(database.map(i => i.tomador))].sort();
+        const ue = ["TODOS", ...new Set(database.map(i => i.empresa))].sort();
+
+        t.innerHTML = '';
+        ut.forEach(v => t.innerHTML += `<option value="${v}">Tomador: ${v}</option>`);
+        t.value = currentT || "TODOS";
+
+        e.innerHTML = '';
+        ue.forEach(v => e.innerHTML += `<option value="${v}">Empresa: ${v}</option>`);
+        e.value = currentE || "TODOS";
+    }
+
+    function sortColabData(column) {
+        if (currentColabSort.column === column) {
+            currentColabSort.direction = currentColabSort.direction === 'asc' ? 'desc' : 'asc';
+        } else {
+            currentColabSort.column = column;
+            currentColabSort.direction = 'asc';
+        }
+        
+        document.querySelectorAll('#section-colaboradores .sort-icon').forEach(icon => {
+            icon.classList.remove('active');
+            icon.innerText = 'unfold_more';
+        });
+        const activeIcon = document.getElementById(`sort-colab-${column}`);
+        if(activeIcon) {
+            activeIcon.classList.add('active');
+            activeIcon.innerText = currentColabSort.direction === 'asc' ? 'expand_less' : 'expand_more';
+        }
+        
+        renderColaboradores();
+    }
+
+    function renderColaboradores() {
+        const uniqueNames = [...new Set(database.map(d => d.name))];
+        let colabList = uniqueNames.map(name => {
+            const recs = database.filter(d => d.name === name);
+            const lat = recs[recs.length - 1]; 
+            return {
+                name: name,
+                empresa: lat.empresa,
+                tomador: lat.tomador,
+                count: recs.length
+            };
+        });
+
+        const fEmpresa = document.getElementById('colabEmpresaFilter').value;
+        const fTomador = document.getElementById('colabTomadorFilter').value;
+        const fSearch = document.getElementById('colabSearch').value.toUpperCase();
+
+        colabList = colabList.filter(item => {
+            if (fEmpresa && fEmpresa !== "TODOS" && item.empresa !== fEmpresa) return false;
+            if (fTomador && fTomador !== "TODOS" && item.tomador !== fTomador) return false;
+            if (fSearch && !item.name.includes(fSearch)) return false;
+            return true;
+        });
+
+        const { column, direction } = currentColabSort;
+        const m = direction === 'asc' ? 1 : -1;
+        
+        colabList.sort((a, b) => {
+            let valA = a[column];
+            let valB = b[column];
+            if (typeof valA === 'string') return valA.localeCompare(valB) * m;
+            return (valA - valB) * m;
+        });
+
+        const tbody = document.getElementById('colaboradoresTableBody');
+        tbody.innerHTML = '';
+        
+        if(colabList.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500 italic">Nenhum colaborador encontrado com os filtros atuais.</td></tr>`;
+            return;
+        }
+
+        colabList.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-slate-800/50 transition-colors border-b border-slate-800";
+            tr.style.borderColor = "var(--border-card)";
+            
+            tr.innerHTML = `
+                <td class="px-6 py-4 font-bold text-slate-200" style="color: var(--text-main)">${item.name}</td>
+                <td class="px-6 py-4"><span class="text-[10px] font-black uppercase px-2 py-1 rounded border ${getCompanyBadgeClass(item.empresa)}">${item.empresa}</span></td>
+                <td class="px-6 py-4"><span class="text-[10px] font-black uppercase px-2 py-1 rounded border ${getTomadorBadgeClass(item.tomador)}">${item.tomador}</span></td>
+                <td class="px-6 py-4 text-center text-slate-400 text-xs font-mono font-bold bg-slate-900/30 rounded mx-auto w-12 block mt-1">${item.count}</td>
+                <td class="px-6 py-4 text-center">
+                    <button onclick="openEditModal('${item.name}')" class="text-blue-400 hover:text-white hover:bg-blue-600 font-bold text-[10px] uppercase bg-slate-800 px-3 py-2 rounded-lg border border-slate-700 transition-all flex items-center justify-center gap-1 mx-auto">
+                        <span class="material-symbols-outlined text-sm">edit</span> Editar
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+        
+        if(document.getElementById('colabEmpresaFilter').options.length === 0) {
+            populateColabFilters();
+        }
+    }
+
+    // --- CHART & MODAL LOGIC ---
+    let editingOriginalName = null;
+    
+    function openEditModal(n){ const m=document.getElementById('editModal'); document.getElementById('monthRowsContainer').innerHTML=''; editingOriginalName=(n==='NEW'?null:n); document.getElementById('modalTitle').innerText=(n==='NEW'?"Novo Colaborador":"Editar: "+n); document.getElementById('editName').value=(n==='NEW'?"":n); document.getElementById('btnDeleteEmployee').style.display=(n==='NEW'?'none':'block'); if(n!=='NEW') database.filter(d=>d.name===n).forEach(r=>addMonthRow(r)); else addMonthRow(); m.style.display='flex'; }
+    function closeEditModal(){ document.getElementById('editModal').style.display='none'; }
+    function addMonthRow(d=null){ const c=document.getElementById('monthRowsContainer'); const v=d||{mes:"Dez/25",empresa:"G Lux",tomador:"EM CASA",censo_q:0,censo_v:0,fisc_q:0,fisc_v:0,despesa_total:0,premiacao:0,deslocamento:0}; const div=document.createElement('div'); div.className="bg-slate-900 p-4 rounded-xl border border-slate-700 grid grid-cols-1 md:grid-cols-4 gap-3 relative"; div.innerHTML=`<div class="md:col-span-1"><label class="text-[10px] uppercase text-slate-500 font-bold">Mês</label><input type="text" class="inp-mes w-full bg-slate-800 border border-slate-600 rounded p-1 text-xs text-white" value="${v.mes}"></div><div class="md:col-span-1"><label class="text-[10px] uppercase text-slate-500 font-bold">Empresa</label><input type="text" class="inp-emp w-full bg-slate-800 border border-slate-600 rounded p-1 text-xs text-white" value="${v.empresa}"></div><div class="md:col-span-1"><label class="text-[10px] uppercase text-slate-500 font-bold">Tomador</label><input type="text" class="inp-tom w-full bg-slate-800 border border-slate-600 rounded p-1 text-xs text-white" value="${v.tomador}"></div><div class="md:col-span-1 flex items-end justify-end"><button onclick="this.parentElement.parentElement.remove()" class="text-rose-500 hover:text-rose-400 text-xs font-bold">Remover</button></div><div class="md:col-span-4 h-[1px] bg-slate-800 my-1"></div><div><label class="text-[10px] uppercase text-slate-500 font-bold">Qtd Censo</label><input type="number" step="0.01" class="inp-cq w-full bg-slate-800 border border-slate-600 rounded p-1 text-xs text-white" value="${v.censo_q}"></div><div><label class="text-[10px] uppercase text-emerald-600 font-bold">R$ Censo</label><input type="number" step="0.01" class="inp-cv w-full bg-slate-800 border border-slate-600 rounded p-1 text-xs text-emerald-400 font-bold" value="${v.censo_v}"></div><div><label class="text-[10px] uppercase text-slate-500 font-bold">Qtd Fisc</label><input type="number" step="0.01" class="inp-fq w-full bg-slate-800 border border-slate-600 rounded p-1 text-xs text-white" value="${v.fisc_q}"></div><div><label class="text-[10px] uppercase text-emerald-600 font-bold">R$ Fisc</label><input type="number" step="0.01" class="inp-fv w-full bg-slate-800 border border-slate-600 rounded p-1 text-xs text-emerald-400 font-bold" value="${v.fisc_v}"></div><div><label class="text-[10px] uppercase text-rose-500 font-bold">Despesa</label><input type="number" step="0.01" class="inp-dt w-full bg-slate-800 border border-slate-600 rounded p-1 text-xs text-rose-400 font-bold" value="${v.despesa_total}"></div><div><label class="text-[10px] uppercase text-slate-500 font-bold">Premiação</label><input type="number" step="0.01" class="inp-pr w-full bg-slate-800 border border-slate-600 rounded p-1 text-xs text-white" value="${v.premiacao}"></div><div><label class="text-[10px] uppercase text-slate-500 font-bold">Deslocamento</label><input type="number" step="0.01" class="inp-ds w-full bg-slate-800 border border-slate-600 rounded p-1 text-xs text-white" value="${v.deslocamento}"></div>`; c.appendChild(div); }
+    
+    // --- FUNÇÕES DE SALVAR E EXCLUIR ---
+    function saveEmployee() {
+        const nameInput = document.getElementById('editName').value.trim().toUpperCase();
+        if (!nameInput) { alert("Por favor, insira o nome do colaborador."); return; }
+        const rowsContainer = document.getElementById('monthRowsContainer');
+        const rows = rowsContainer.querySelectorAll('div.grid');
+        if (rows.length === 0) { if(!confirm("Você está salvando um colaborador sem nenhum registro de mês. Deseja continuar?")) return; }
+
+        if (editingOriginalName) { database = database.filter(d => d.name !== editingOriginalName); }
+
+        let newRecordsCount = 0;
+        rows.forEach(row => {
+            const getNum = (cls) => { const val = row.querySelector('.' + cls).value; return parseFloat(val) || 0; };
+            const getStr = (cls) => row.querySelector('.' + cls).value.trim();
+            const newRecord = {
+                mes: getStr('inp-mes'), empresa: getStr('inp-emp'), name: nameInput, tomador: getStr('inp-tom').toUpperCase(),
+                censo_q: getNum('inp-cq'), censo_v: getNum('inp-cv'), fisc_q: getNum('inp-fq'), fisc_v: getNum('inp-fv'),
+                despesa_total: getNum('inp-dt'), premiacao: getNum('inp-pr'), deslocamento: getNum('inp-ds')
+            };
+            database.push(newRecord); newRecordsCount++;
+        });
+
+        populateFilters(); populateColabFilters(); populateTrendFilters(); filterData(); renderColaboradores();
+        alert(`Sucesso!\nColaborador "${nameInput}" salvo com ${newRecordsCount} registros.`);
+        closeEditModal();
+    }
+
+    function deleteEmployeeFromModal() {
+        if (!editingOriginalName) return;
+        const confirmDelete = confirm(`Tem certeza que deseja excluir TODOS os registros de ${editingOriginalName}?\n\nEsta ação afetará o saldo geral e não pode ser desfeita.`);
+        if (confirmDelete) {
+            const initialLength = database.length;
+            database = database.filter(d => d.name !== editingOriginalName);
+            if (database.length === initialLength) { alert("Erro: Não foi possível encontrar os registros para excluir."); } 
+            else { populateFilters(); populateColabFilters(); populateTrendFilters(); filterData(); renderColaboradores(); alert("Colaborador excluído com sucesso."); closeEditModal(); }
+        }
+    }
+
+    // --- GRAPH RENDER ---
+    const commonOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#94a3b8' } } }, scales: { y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } }, x: { grid: { display: false }, ticks: { color: '#94a3b8' } } } };
+
+    function renderCharts(d){ 
+        // ===== EVOLUÇÃO FINANCEIRA (com filtros NOVOS) =====
+        const monthOrder = ["Dez/25", "Jan/26", "Fev/26", "Mar/26", "Abr/26", "Mai/26", "Jun/26", "Jul/26", "Ago/26", "Set/26", "Out/26", "Nov/26"];
+
+        const trendEmp = (document.getElementById('trendEmpresaFilter')?.value) || "TODOS";
+        const trendCol = (document.getElementById('trendColabFilter')?.value) || "TODOS";
+        const trendPer = (document.getElementById('trendPeriodFilter')?.value) || "ALL";
+
+        let trendRows = database.slice();
+
+        if (trendEmp !== "TODOS") trendRows = trendRows.filter(r => r.empresa === trendEmp);
+        if (trendCol !== "TODOS") trendRows = trendRows.filter(r => r.name === trendCol);
+        if (trendPer !== "ALL")   trendRows = trendRows.filter(r => r.mes === trendPer);
+
+        const prodByMonth = {};
+        const despByMonth = {};
+        monthOrder.forEach(m => { prodByMonth[m] = 0; despByMonth[m] = 0; });
+
+        trendRows.forEach(r => {
+            if (prodByMonth[r.mes] !== undefined) {
+                prodByMonth[r.mes] += (r.censo_v || 0) + (r.fisc_v || 0);
+                despByMonth[r.mes] += (r.despesa_total || 0);
+            }
+        });
+
+        let labelsTrend = monthOrder.filter(m => (prodByMonth[m] > 0 || despByMonth[m] > 0));
+        if (trendPer !== "ALL") labelsTrend = [trendPer]; // mostra exatamente o período selecionado
+
+        // --- ALTERAÇÃO AQUI: Chama a nova função TrendChart ---
+        createTrendChart(
+            'chartTrend',
+            labelsTrend,
+            labelsTrend.map(m => prodByMonth[m]),
+            labelsTrend.map(m => despByMonth[m])
+        );
+        // -----------------------------------------------------
+
+        // ===== TOP 10 RANKING (maiores saldos a receber + labels 1º/2º... + tooltip em R$) =====
+        const saldoMap = {};
+        database.forEach(r => {
+            const saldo = ((r.censo_v || 0) + (r.fisc_v || 0)) - (r.despesa_total || 0);
+            if (!saldoMap[r.name]) saldoMap[r.name] = 0;
+            saldoMap[r.name] += saldo;
+        });
+
+        const top10 = Object.entries(saldoMap)
+            .filter(([,v]) => v > 0)                  // apenas "a receber"
+            .sort(([,a],[,b]) => b - a)
+            .slice(0, 10);
+
+        const labelsRanking = top10.map(([nome], idx) => `${idx + 1}º ${nome.split(' ')[0]}`);
+        const dataRanking   = top10.map(([,v]) => v);
+
+        createHorizontalBarChart('chartRanking', labelsRanking, dataRanking);
+
+        // ===== MIX DE PRODUÇÃO (não alterar) =====
+        const mixMap={}; 
+        database.forEach(x=>{
+            if(!mixMap[x.tomador])mixMap[x.tomador]={c:0,f:0};
+            mixMap[x.tomador].c+=x.censo_v;
+            mixMap[x.tomador].f+=x.fisc_v;
+        });
+        const mixL=Object.keys(mixMap); 
+        createStackedBarChart('chartMix', mixL, mixL.map(l=>mixMap[l].c), mixL.map(l=>mixMap[l].f));
+
+        // ===== SHARE POR EMPRESA (tooltip em R$) =====
+        const shMap={}; 
+        database.forEach(x=>{
+            if(!shMap[x.empresa])shMap[x.empresa]=0;
+            shMap[x.empresa]+=(x.censo_v+x.fisc_v);
+        });
+        const shL=Object.keys(shMap); 
+        createDoughnutChart('chartShare', shL, shL.map(l=>shMap[l]));
+    }
+    
+    // --- ALTERAÇÃO AQUI: Nova função createTrendChart com 2 linhas ---
+    function createTrendChart(id, l, dp, dd) {
+        if(chartInstances[id]) chartInstances[id].destroy();
+        const ctx=document.getElementById(id).getContext('2d');
+        
+        // Gradients
+        const gradProd = ctx.createLinearGradient(0,0,0,400);
+        gradProd.addColorStop(0, 'rgba(16, 185, 129, 0.2)');
+        gradProd.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+
+        const gradDesp = ctx.createLinearGradient(0,0,0,400);
+        gradDesp.addColorStop(0, 'rgba(239, 68, 68, 0.2)');
+        gradDesp.addColorStop(1, 'rgba(239, 68, 68, 0.0)');
+
+        chartInstances[id]=new Chart(ctx, {
+            type:'line',
+            data:{
+                labels:l,
+                datasets:[
+                    {
+                        label:'Produção', 
+                        data:dp, 
+                        borderColor:'#10b981', 
+                        backgroundColor: gradProd, 
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label:'Despesas', 
+                        data:dd, 
+                        borderColor:'#ef4444', 
+                        backgroundColor: gradDesp, 
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        tension: 0.4,
+                        fill: true
+                    }
+                ]
+            },
+            options:{
+                ...commonOptions,
+                plugins:{
+                    ...commonOptions.plugins,
+                    tooltip:{
+                        mode: 'index',
+                        intersect: false,
+                        callbacks:{
+                            label:(ctx)=> `${ctx.dataset.label}: ${fmt.format(ctx.parsed.y || 0)}`
+                        }
+                    }
+                },
+                scales:{
+                    ...commonOptions.scales,
+                    y:{
+                        ...commonOptions.scales.y,
+                        ticks:{
+                            ...commonOptions.scales.y.ticks,
+                            callback:(v)=> fmt.format(v)
+                        }
+                    }
+                }
+            }
+        });
+    }
+    // -------------------------------------------------------------
+
+    function createHorizontalBarChart(id, l, d) {
+        if(chartInstances[id]) chartInstances[id].destroy();
+        const ctx=document.getElementById(id).getContext('2d');
+        chartInstances[id]=new Chart(ctx, {
+            type:'bar',
+            data:{ labels:l, datasets:[{ label:'Saldo', data:d, backgroundColor:d.map(v=>v>=0?'#10b981':'#ef4444'), borderRadius:4 }] },
+            options:{
+                ...commonOptions,
+                indexAxis:'y',
+                plugins:{
+                    ...commonOptions.plugins,
+                    tooltip:{
+                        callbacks:{
+                            label:(ctx)=> `Saldo: ${fmt.format(ctx.parsed.x || 0)}`
+                        }
+                    }
+                },
+                scales:{
+                    ...commonOptions.scales,
+                    x:{
+                        ...commonOptions.scales.x,
+                        ticks:{
+                            ...commonOptions.scales.x.ticks,
+                            callback:(v)=> fmt.format(v)
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function createStackedBarChart(id, l, dc, df) { if(chartInstances[id]) chartInstances[id].destroy(); const ctx=document.getElementById(id).getContext('2d'); chartInstances[id]=new Chart(ctx, {type:'bar', data:{labels:l, datasets:[{label:'Censo', data:dc, backgroundColor:'#8b5cf6', borderRadius:4}, {label:'Fiscalização', data:df, backgroundColor:'#f59e0b', borderRadius:4}]}, options:{...commonOptions, scales:{x:{stacked:true, grid:{display:false}, ticks:{color:'#94a3b8'}}, y:{stacked:true, grid:{color:'#1e293b'}, ticks:{color:'#94a3b8'}}}}}); }
+    
+    function createDoughnutChart(id, l, d) {
+        if(chartInstances[id]) chartInstances[id].destroy();
+        const ctx=document.getElementById(id).getContext('2d');
+        chartInstances[id]=new Chart(ctx, {
+            type:'doughnut',
+            data:{ labels:l, datasets:[{ data:d, backgroundColor:['#3b82f6', '#10b981', '#f59e0b', '#ec4899'], borderWidth:0 }] },
+            options:{
+                responsive:true,
+                maintainAspectRatio:false,
+                plugins:{
+                    legend:{ position:'right', labels:{ color:'#94a3b8' } },
+                    tooltip:{
+                        callbacks:{
+                            label:(ctx)=> `${ctx.label}: ${fmt.format(ctx.parsed || 0)}`
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function switchTab(t) { document.querySelectorAll('.tab-btn').forEach(b=>{b.classList.remove('active'); b.classList.add('text-slate-400');}); document.getElementById('tab-'+t).classList.add('active'); document.getElementById('tab-'+t).classList.remove('text-slate-400'); document.getElementById('section-overview').classList.toggle('hidden',t!=='overview'); document.getElementById('main-filter-bar').style.display=t==='colaboradores'?'none':'flex'; document.getElementById('section-analytics').classList.toggle('hidden',t!=='analytics'); document.getElementById('section-colaboradores').classList.toggle('hidden',t!=='colaboradores'); if(t==='analytics') setTimeout(()=>filterData(),50); if(t==='colaboradores') renderColaboradores(); }
+    function togglePrivacy() { isPrivacyMode = !isPrivacyMode; document.getElementById('privacy-icon').innerText = isPrivacyMode ? "visibility_off" : "visibility"; applyPrivacy(); }
+    function applyPrivacy() { document.querySelectorAll('.sensitive-data').forEach(el => { if (isPrivacyMode) el.classList.add('privacy-blur'); else el.classList.remove('privacy-blur'); }); }
+    function toggleTheme() { isLightMode = !isLightMode; document.body.classList.toggle('light-mode', isLightMode); document.getElementById('theme-icon').innerText = isLightMode ? "light_mode" : "dark_mode"; checkTheme(); }
+    function checkTheme() { if (document.body.classList.contains('light-mode')) isLightMode = true; }
+    let currentOpenUser = null;
+    function toggleSidePanel(name) { const panel = document.getElementById('resumoPanel'); const tableContainer = document.getElementById('mainTableContainer'); if (currentOpenUser === name && !panel.classList.contains('hidden')) { closeSidePanel(); return; } currentOpenUser = name; panel.classList.remove('hidden'); tableContainer.classList.remove('xl:col-span-3'); tableContainer.classList.add('xl:col-span-2'); updateSidePanelContent(name); }
+    function closeSidePanel() { const panel = document.getElementById('resumoPanel'); const tableContainer = document.getElementById('mainTableContainer'); panel.classList.add('hidden'); tableContainer.classList.remove('xl:col-span-2'); tableContainer.classList.add('xl:col-span-3'); currentOpenUser = null; }
+    function updateSidePanelContent(name) { const pD = database.filter(r => r.name === name); if(!pD.length) return; const mf = document.getElementById('monthFilter').value; const fH = mf === "ALL" ? pD : pD.filter(r => r.mes === mf); const lR = fH[fH.length - 1] || pD[0]; document.getElementById('resumoName').innerText = lR.name; document.getElementById('resumoEmpresaTag').innerText = lR.empresa; document.getElementById('resumoTomadorTag').innerText = lR.tomador; document.getElementById('resumoEmpresaTag').className = `text-[10px] font-bold uppercase px-3 py-1 rounded-full ${getCompanyBadgeClass(lR.empresa)}`; document.getElementById('resumoTomadorTag').className = `text-[10px] font-bold uppercase px-3 py-1 rounded-full ${getTomadorBadgeClass(lR.tomador)}`; const tP = fH.reduce((acc, r) => acc + (r.censo_v || 0) + (r.fisc_v || 0), 0); const tD = fH.reduce((acc, r) => acc + (r.despesa_total || 0), 0); const sal = tP - tD; document.getElementById('resumoValueFinal').innerText = fmt.format(sal); document.getElementById('resumoValueFinal').className = `text-4xl font-black sensitive-data ${sal < 0 ? 'text-rose-500' : 'text-emerald-500'}`; document.getElementById('resumoNegativeNotice').innerText = sal < 0 ? "Saldo devedor." : ""; const c = document.getElementById('resumoContent'); c.innerHTML = ''; fH.forEach(m => { const pt = (m.censo_v || 0) + (m.fisc_v || 0); const dt = (m.despesa_total || 0); const card = document.createElement('div'); card.className = "bg-slate-800/50 border border-slate-700 rounded-[2rem] shadow-sm p-6 space-y-4 hover:bg-slate-800 transition-all"; card.innerHTML = ` <div class="flex justify-between items-center border-b pb-3 border-slate-700"> <span class="text-xs font-black text-blue-500 uppercase tracking-widest">${m.mes}</span> <span class="text-[9px] font-bold text-slate-500 bg-slate-900 px-2 py-1 rounded border border-slate-700">REGISTRO</span> </div> <div class="grid grid-cols-2 gap-4 text-[11px]"> <div class="space-y-2"> <p class="text-[9px] font-black uppercase text-slate-500 tracking-tighter">Produção</p> <div class="flex justify-between text-slate-300"><span>Censo:</span> <strong>${fmt.format(m.censo_v)} <span class="text-xs text-slate-500 font-normal">(${m.censo_q || 0} pts)</span></strong></div> <div class="flex justify-between text-slate-300"><span>Fisc:</span> <strong>${fmt.format(m.fisc_v)} <span class="text-xs text-slate-500 font-normal">(${m.fisc_q || 0} pts)</span></strong></div> </div> <div class="space-y-2 border-l pl-4 border-slate-700"> <p class="text-[9px] font-black uppercase text-slate-500 tracking-tighter">Detalhamento Despesas</p> <div class="flex justify-between text-slate-300"><span>Premiação:</span> <span class="text-blue-400 font-bold">${fmt.format(m.premiacao)}</span></div> <div class="flex justify-between text-slate-300"><span>Desloc/Adt:</span> <span class="text-amber-400 font-bold">${fmt.format(m.deslocamento)}</span></div> </div> </div> <div class="grid grid-cols-2 gap-3 pt-2"> <div class="bg-slate-900 p-3 rounded-2xl border border-slate-700 text-center"> <p class="text-[9px] font-black uppercase text-slate-500 mb-1">Total Produção</p> <p class="text-sm font-black text-slate-100 sensitive-data">${fmt.format(pt)}</p> </div> <div class="bg-rose-950/20 p-3 rounded-2xl border border-rose-900/30 text-center"> <p class="text-[9px] font-black uppercase text-rose-500 mb-1">Total Saídas</p> <p class="text-sm font-black text-rose-400 sensitive-data">${fmt.format(dt)}</p> </div> </div> `; c.appendChild(card); }); applyPrivacy(); }
+
+    function downloadTemplate() { const wb = XLSX.utils.book_new(); const headers = ["Mês", "Empresa", "Nome", "Tomador", "Qtd Censo", "Produção Censo (R$)", "Qtd Fisc", "Produção Fiscalização (R$)", "Despesa Total (R$)", "Premiação (R$)", "Deslocamento (R$)"]; const exampleData = [ ["Dez/25", "G Lux", "Fulano de Tal", "EQUATORIAL PI", 1000, 1500.50, 0, 0, 800, 100, 700], ["Jan/26", "G Lux", "Beltrano", "EM CASA", 0, 0, 500, 3200.00, 1200, 0, 1200] ]; const ws = XLSX.utils.aoa_to_sheet([headers, ...exampleData]); XLSX.utils.book_append_sheet(wb, ws, "DADOS_MENSAL"); XLSX.writeFile(wb, "Modelo_Importacao_Mensal_JVM_Pontos.xlsx"); }
+    async function handleImport(event) { const file = event.target.files[0]; if (!file) return; const data = await file.arrayBuffer(); const workbook = XLSX.read(data); const firstSheet = workbook.Sheets[workbook.SheetNames[0]]; const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 }); let newEntries = []; for(let i = 1; i < jsonData.length; i++) { const row = jsonData[i]; if(!row[0] || !row[2]) continue; const newRecord = { mes: String(row[0]).trim(), empresa: String(row[1] || "G Lux").trim(), name: String(row[2]).trim().toUpperCase(), tomador: String(row[3]).trim().toUpperCase(), censo_q: parseFloat(row[4]) || 0, censo_v: parseFloat(row[5]) || 0, fisc_q: parseFloat(row[6]) || 0, fisc_v: parseFloat(row[7]) || 0, despesa_total: parseFloat(row[8]) || 0, premiacao: parseFloat(row[9]) || 0, deslocamento: parseFloat(row[10]) || 0 }; const existingIdx = database.findIndex(d => d.mes === newRecord.mes && d.name === newRecord.name); if(existingIdx >= 0) { database[existingIdx] = newRecord; } else { database.push(newRecord); } } populateFilters(); populateColabFilters(); populateTrendFilters(); filterData(); if(document.getElementById('tab-colaboradores').classList.contains('active')) renderColaboradores(); alert(`Importação concluída.`); }
+    function downloadDashboard() { const dataScript = `\n<script id="persisted-data">window.savedDatabase = ${JSON.stringify(database)};<\/script>`; let htmlContent = document.documentElement.outerHTML; htmlContent = htmlContent.replace(/<script id="persisted-data">.*?<\/script>/s, ''); const insertPosition = htmlContent.indexOf('</body>'); htmlContent = htmlContent.slice(0, insertPosition) + dataScript + htmlContent.slice(insertPosition); const blob = new Blob([htmlContent], {type: 'text/html'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Dashboard_JVM_2026_Completo.html'; a.click(); }
+    function exportExcel() { const wb = XLSX.utils.book_new(); const rows = [["Mês", "Empresa", "Nome", "Tomador", "Qtd Censo", "Produção Censo (R$)", "Qtd Fisc", "Produção Fiscalização (R$)", "Despesa Total (R$)", "Premiação (R$)", "Deslocamento (R$)"]]; database.forEach(d => { rows.push([d.mes, d.empresa, d.name, d.tomador, d.censo_q, d.censo_v, d.fisc_q, d.fisc_v, d.despesa_total, d.premiacao, d.deslocamento]); }); const ws = XLSX.utils.aoa_to_sheet(rows); XLSX.utils.book_append_sheet(wb, ws, "Base_Consolidada"); XLSX.writeFile(wb, "JVM_Base_Completa_2026.xlsx"); }
+
+    window.onload = init;
+</script>
+
+</body>
+</html>

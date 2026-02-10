@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fechamento de Produção - JVM 2026</title>
     
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=X-gPhZ0b272ugj_dvqPwazTGcPChnPhKGGPi_XLOdb9ZPgW52cTwsMLsvUAW2Xkg4b9BbPTd0EcX7YuSmtkxsMorcJdrpKYBw9JR7lDWySBSlh009191YQg4javQeGHelQ12v2yKlq306AnHXmgfIUkIY1YOAlGcBtLOyREU52B57sezkF0d5CHfqRaA3DI5" charset="UTF-8"></script><script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
@@ -53,6 +53,9 @@
         <div class="p-1 rounded-xl flex no-print gap-1" style="background-color: var(--bg-card); border: 1px solid var(--border-card);">
             <button class="tab-btn px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 active border border-transparent" id="tab-overview" onclick="switchTab('overview')">
                 <span class="material-symbols-outlined text-sm">dashboard</span> Visão Geral
+            </button>
+            <button class="tab-btn px-6 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all flex items-center gap-2 border border-transparent cursor-pointer" id="tab-faturamento" onclick="switchTab('faturamento')">
+                <span class="material-symbols-outlined text-sm">attach_money</span> Faturamento
             </button>
             <button class="tab-btn px-6 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all flex items-center gap-2 border border-transparent cursor-pointer" id="tab-analytics" onclick="switchTab('analytics')">
                 <span class="material-symbols-outlined text-sm">insert_chart</span> Estatísticas
@@ -105,7 +108,8 @@
         <div class="flex gap-4">
              <div class="relative">
                 <select id="monthFilter" onchange="filterData()" class="bg-slate-800 border border-slate-700 rounded-xl text-sm py-2.5 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 shadow-lg cursor-pointer font-bold">
-                    <option value="ALL">Período: Semestre (Dez-Mai)</option>
+                    <option value="ALL">1º Semestre 2026 (Dez - Mai)</option>
+                    <option value="2SEM26">2º Semestre 2026 (Jun - Nov)</option>
                     <option value="Dez/25">Dez/25</option>
                     <option value="Jan/26">Jan/26</option>
                     <option value="Fev/26">Fev/26</option>
@@ -124,7 +128,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 no-print">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 no-print" id="kpi-overview-section">
         <div class="dark-card p-6 rounded-3xl shadow-lg">
             <p class="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-2">Total Despesas</p>
             <h2 class="text-3xl font-black text-slate-100 sensitive-data" id="kpi-total-adi" style="color: var(--text-main)">R$ 0,00</h2>
@@ -153,7 +157,7 @@
                 </div>
                 <div class="flex flex-wrap items-center gap-3">
                     <div class="relative">
-                        <select id="empresaFilter" onchange="filterData()" class="bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold py-3 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 cursor-pointer min-w-[150px]"></select>
+                        <select id="empresaFilter" onchange="handleEmpresaChange()" class="bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold py-3 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 cursor-pointer min-w-[150px]"></select>
                         <span class="material-symbols-outlined absolute right-3 top-3 text-slate-500 pointer-events-none text-sm">business</span>
                     </div>
                     <div class="relative">
@@ -212,6 +216,118 @@
         </div>
     </div>
 
+    <div class="space-y-8 animate-in fade-in duration-500 hidden" id="section-faturamento">
+        
+        <div class="flex flex-col md:flex-row justify-between items-center bg-slate-900/50 p-6 rounded-[2rem] border border-slate-800 gap-4" style="background-color: var(--bg-hover); border-color: var(--border-card);">
+            <div>
+                <h4 class="text-xl font-black tracking-tight text-emerald-400"><span class="material-symbols-outlined text-lg align-middle">attach_money</span> Faturamento Real</h4>
+                <p class="text-xs text-slate-500 font-medium">Cálculo baseado em quantitativos (Censo R$ 8,34 | Fisc R$ 20,20)</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="relative">
+                    <select id="fatMonthFilter" onchange="renderFaturamento()" class="bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold py-3 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-emerald-500 cursor-pointer min-w-[150px]">
+                        <option value="ALL">Período: 1º Semestre</option>
+                        <option value="2SEM26">Período: 2º Semestre</option>
+                        <option value="Dez/25">Dez/25</option>
+                        <option value="Jan/26">Jan/26</option>
+                        <option value="Fev/26">Fev/26</option>
+                        <option value="Mar/26">Mar/26</option>
+                        <option value="Abr/26">Abr/26</option>
+                        <option value="Mai/26">Mai/26</option>
+                        <option value="Jun/26">Jun/26</option>
+                        <option value="Jul/26">Jul/26</option>
+                        <option value="Ago/26">Ago/26</option>
+                        <option value="Set/26">Set/26</option>
+                        <option value="Out/26">Out/26</option>
+                        <option value="Nov/26">Nov/26</option>
+                    </select>
+                    <span class="material-symbols-outlined absolute right-3 top-3 text-emerald-500 pointer-events-none text-sm">calendar_today</span>
+                </div>
+                <div class="relative">
+                    <select id="fatEmpresaFilter" onchange="updateFatTomadorFilter(); renderFaturamento();" class="bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold py-3 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-emerald-500 cursor-pointer min-w-[150px]"></select>
+                    <span class="material-symbols-outlined absolute right-3 top-3 text-emerald-500 pointer-events-none text-sm">business</span>
+                </div>
+                <div class="relative">
+                    <select id="fatTomadorFilter" onchange="updateFatColabFilter(); renderFaturamento();" class="bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold py-3 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-emerald-500 cursor-pointer min-w-[180px]"></select>
+                    <span class="material-symbols-outlined absolute right-3 top-3 text-emerald-500 pointer-events-none text-sm">filter_alt</span>
+                </div>
+                 <div class="relative">
+                    <select id="fatColabFilter" onchange="renderFaturamento()" class="bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold py-3 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-emerald-500 cursor-pointer min-w-[180px]"></select>
+                    <span class="material-symbols-outlined absolute right-3 top-3 text-emerald-500 pointer-events-none text-sm">person</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="dark-card p-6 rounded-3xl shadow-lg border-b-4 border-b-purple-500">
+                <p class="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-2">Faturamento Censo</p>
+                <h2 class="text-3xl font-black text-purple-400 sensitive-data" id="kpi-fat-censo">R$ 0,00</h2>
+            </div>
+            <div class="dark-card p-6 rounded-3xl shadow-lg border-b-4 border-b-amber-500">
+                <p class="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-2">Faturamento Fiscalização</p>
+                <h2 class="text-3xl font-black text-amber-400 sensitive-data" id="kpi-fat-fisc">R$ 0,00</h2>
+            </div>
+            <div class="dark-card p-6 rounded-3xl shadow-lg border-b-4 border-b-emerald-500">
+                <p class="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-2">Faturamento Total</p>
+                <h2 class="text-4xl font-black text-emerald-400 sensitive-data" id="kpi-fat-total">R$ 0,00</h2>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="dark-card p-8 rounded-[2rem] shadow-xl lg:col-span-2">
+                <h4 class="text-xs font-black uppercase tracking-widest mb-6 flex items-center gap-2" style="color: var(--text-muted)">
+                    <span class="material-symbols-outlined text-emerald-400 text-lg">leaderboard</span> Top 10 Ranking de Faturamento
+                </h4>
+                <div class="h-80"><canvas id="chartFatRanking"></canvas></div>
+            </div>
+            <div class="dark-card p-8 rounded-[2rem] shadow-xl">
+                <h4 class="text-xs font-black uppercase tracking-widest mb-6 flex items-center gap-2" style="color: var(--text-muted)">
+                    <span class="material-symbols-outlined text-purple-500 text-lg">donut_small</span> Share de Faturamento (Empresa)
+                </h4>
+                <div class="h-64"><canvas id="chartFatShare"></canvas></div>
+            </div>
+            <div class="dark-card p-8 rounded-[2rem] shadow-xl">
+                <h4 class="text-xs font-black uppercase tracking-widest mb-6 flex items-center gap-2" style="color: var(--text-muted)">
+                    <span class="material-symbols-outlined text-amber-500 text-lg">stacked_bar_chart</span> Mix de Faturamento (Tomador)
+                </h4>
+                <div class="h-64"><canvas id="chartFatMix"></canvas></div>
+            </div>
+        </div>
+
+        <div class="dark-card rounded-[2.5rem] shadow-2xl overflow-hidden">
+            <div class="p-6 border-b border-slate-800 bg-slate-900/50" style="background-color: var(--bg-hover); border-color: var(--border-card);">
+                <h3 class="text-lg font-black tracking-tight italic" style="color: var(--text-main)">Detalhamento Financeiro</h3>
+                <p class="text-[10px] text-slate-500 mt-1 uppercase font-bold">Clique nas colunas para ordenar</p>
+            </div>
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-900 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-slate-800" style="background: var(--bg-card); border-color: var(--border-card);">
+                        <tr>
+                            <th class="px-6 py-4 cursor-pointer hover:text-white" onclick="sortFatData('name')">
+                                <div class="flex items-center gap-1">Colaborador <span class="material-symbols-outlined text-sm sort-icon" id="sort-fat-name">unfold_more</span></div>
+                            </th>
+                            <th class="px-6 py-4 text-center cursor-pointer hover:text-white" onclick="sortFatData('qtd_censo')">
+                                <div class="flex items-center justify-center gap-1">Qtd Censo <span class="material-symbols-outlined text-sm sort-icon" id="sort-fat-qtd_censo">unfold_more</span></div>
+                            </th>
+                            <th class="px-6 py-4 text-right text-purple-400 cursor-pointer hover:text-white" onclick="sortFatData('rev_censo')">
+                                <div class="flex items-center justify-end gap-1">Receita Censo <span class="material-symbols-outlined text-sm sort-icon" id="sort-fat-rev_censo">unfold_more</span></div>
+                            </th>
+                            <th class="px-6 py-4 text-center cursor-pointer hover:text-white" onclick="sortFatData('qtd_fisc')">
+                                <div class="flex items-center justify-center gap-1">Qtd Fisc <span class="material-symbols-outlined text-sm sort-icon" id="sort-fat-qtd_fisc">unfold_more</span></div>
+                            </th>
+                            <th class="px-6 py-4 text-right text-amber-400 cursor-pointer hover:text-white" onclick="sortFatData('rev_fisc')">
+                                <div class="flex items-center justify-end gap-1">Receita Fisc <span class="material-symbols-outlined text-sm sort-icon" id="sort-fat-rev_fisc">unfold_more</span></div>
+                            </th>
+                            <th class="px-6 py-4 text-right text-emerald-500 cursor-pointer hover:text-white" onclick="sortFatData('rev_total')">
+                                <div class="flex items-center justify-end gap-1">Total Faturado <span class="material-symbols-outlined text-sm sort-icon" id="sort-fat-rev_total">unfold_more</span></div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800 text-sm font-medium" id="fatTableBody" style="border-color: var(--border-card);"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
     <div class="space-y-8 animate-in fade-in duration-500 hidden" id="section-analytics">
         <div class="flex justify-between items-center mb-4"><div><h4 class="text-xl font-black tracking-tight" style="color: var(--text-main)">Análise Gerencial</h4><p class="text-xs text-slate-500 font-medium">Indicadores de desempenho e tendências.</p></div></div>
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -222,7 +338,7 @@
             
                 <div class="flex flex-wrap gap-3 mb-6">
                     <div class="relative">
-                        <select id="trendEmpresaFilter" onchange="filterData()"
+                        <select id="trendEmpresaFilter" onchange="handleTrendEmpresaChange()"
                             class="bg-slate-800 border border-slate-700 rounded-xl text-[11px] font-black py-2.5 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 cursor-pointer min-w-[160px]">
                         </select>
                         <span class="material-symbols-outlined absolute right-3 top-2.5 text-slate-500 pointer-events-none text-sm">business</span>
@@ -362,6 +478,7 @@
         populateFilters();
         populateColabFilters();
         populateTrendFilters();
+        populateFatFilters(); 
         filterData();
         checkTheme();
     }
@@ -515,8 +632,9 @@
             } else {
                 // Substitui a base inteira pela importada do Google Sheets (evita duplicação com dados embutidos no HTML)
                 database = newDatabase;
-                populateFilters(); populateColabFilters(); populateTrendFilters(); filterData();
+                populateFilters(); populateColabFilters(); populateTrendFilters(); populateFatFilters(); filterData();
                 if(document.getElementById('tab-colaboradores').classList.contains('active')) renderColaboradores();
+                if(document.getElementById('tab-faturamento').classList.contains('active')) renderFaturamento();
                 if(!silent) alert(`✅ SUCESSO!\n\nNovos: ${novos}\nAtualizados: ${atualizados}`);
             }
 
@@ -534,42 +652,81 @@
     function sortData(column) { if (currentSort.column === column) currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc'; else { currentSort.column = column; currentSort.direction = 'asc'; } document.querySelectorAll('.sort-icon').forEach(icon => { icon.classList.remove('active'); icon.innerText = 'unfold_more'; }); const activeIcon = document.getElementById(`sort-${column}`); if(activeIcon) { activeIcon.classList.add('active'); activeIcon.innerText = currentSort.direction === 'asc' ? 'expand_less' : 'expand_more'; } filterData(); }
     function applySort(data) { const { column, direction } = currentSort; const m = direction === 'asc' ? 1 : -1; return data.sort((a, b) => { let valA, valB; switch(column) { case 'name': valA = a.name; valB = b.name; break; case 'tomador': valA = a.tomador; valB = b.tomador; break; case 'despesa': valA = a.adiantamento; valB = b.adiantamento; break; case 'producao': valA = a.producao; valB = b.producao; break; case 'saldo': valA = a.saldo; valB = b.saldo; break; default: return 0; } if (typeof valA === 'string') return valA.localeCompare(valB) * m; return (valA - valB) * m; }); }
 
-    function populateFilters() { const t = document.getElementById('tomadorFilter'); const e = document.getElementById('empresaFilter'); const ut = ["TODOS", ...new Set(database.map(i => i.tomador))]; const ue = ["TODOS", ...new Set(database.map(i => i.empresa))]; t.innerHTML = ''; ut.forEach(v => t.innerHTML += `<option value="${v}">Tomador: ${v}</option>`); t.value = "TODOS"; e.innerHTML = ''; ue.forEach(v => e.innerHTML += `<option value="${v}">Empresa: ${v}</option>`); e.value = "TODOS"; }
+    function populateFilters() { 
+        const e = document.getElementById('empresaFilter'); 
+        const ue = ["TODOS", ...new Set(database.map(i => i.empresa))]; 
+        const currentE = e.value;
+        e.innerHTML = ''; 
+        ue.forEach(v => e.innerHTML += `<option value="${v}">Empresa: ${v}</option>`); 
+        e.value = currentE || "TODOS";
+        updateTomadorFilter(); 
+    }
+
+    function updateTomadorFilter() {
+        const eVal = document.getElementById('empresaFilter').value;
+        const t = document.getElementById('tomadorFilter');
+        const currentT = t.value;
+        const availableTomadores = new Set();
+        database.forEach(i => {
+            if (eVal === "TODOS" || i.empresa === eVal) {
+                availableTomadores.add(i.tomador);
+            }
+        });
+        const ut = ["TODOS", ...availableTomadores];
+        t.innerHTML = '';
+        ut.forEach(v => t.innerHTML += `<option value="${v}">Tomador: ${v}</option>`);
+        if (ut.includes(currentT)) { t.value = currentT; } else { t.value = "TODOS"; }
+    }
+
+    function handleEmpresaChange() {
+        updateTomadorFilter();
+        filterData();
+    }
 
     function populateTrendFilters() {
         const empSel = document.getElementById('trendEmpresaFilter');
-        const colSel = document.getElementById('trendColabFilter');
         const perSel = document.getElementById('trendPeriodFilter');
-        if (!empSel || !colSel || !perSel) return;
+        if (!empSel || !perSel) return;
 
         const currentEmp = empSel.value || "TODOS";
-        const currentCol = colSel.value || "TODOS";
         const currentPer = perSel.value || "ALL";
 
         const empresas = ["TODOS", ...new Set(database.map(r => r.empresa))].sort();
-        
-        // --- ALTERAÇÃO AQUI: Ordena nomes e força TODOS no topo ---
-        let colabNames = [...new Set(database.map(r => r.name))];
-        colabNames.sort(); // Ordena alfabeticamente
-        const colabs = ["TODOS", ...colabNames]; // Adiciona TODOS no início
-        // ----------------------------------------------------------
-
-        const monthOrder = ["Dez/25", "Jan/26", "Fev/26", "Mar/26", "Abr/26", "Mai/26", "Jun/26", "Jul/26", "Ago/26", "Set/26", "Out/26", "Nov/26"];
-        const mesesDb = [...new Set(database.map(r => r.mes))];
-        mesesDb.sort((a,b) => monthOrder.indexOf(a) - monthOrder.indexOf(b));
-
         empSel.innerHTML = "";
         empresas.forEach(v => empSel.innerHTML += `<option value="${v}">Empresa: ${v}</option>`);
         empSel.value = empresas.includes(currentEmp) ? currentEmp : "TODOS";
 
-        colSel.innerHTML = "";
-        colabs.forEach(v => colSel.innerHTML += `<option value="${v}">Colaborador: ${v}</option>`);
-        colSel.value = colabs.includes(currentCol) ? currentCol : "TODOS";
-
+        const monthOrder = ["Dez/25", "Jan/26", "Fev/26", "Mar/26", "Abr/26", "Mai/26", "Jun/26", "Jul/26", "Ago/26", "Set/26", "Out/26", "Nov/26"];
+        const mesesDb = [...new Set(database.map(r => r.mes))];
+        mesesDb.sort((a,b) => monthOrder.indexOf(a) - monthOrder.indexOf(b));
         perSel.innerHTML = "";
         perSel.innerHTML += `<option value="ALL">Período: Todos</option>`;
         mesesDb.forEach(v => perSel.innerHTML += `<option value="${v}">${v}</option>`);
         perSel.value = (currentPer === "ALL" || mesesDb.includes(currentPer)) ? currentPer : "ALL";
+
+        updateTrendColabFilter();
+    }
+
+    function updateTrendColabFilter() {
+        const empVal = document.getElementById('trendEmpresaFilter').value;
+        const colSel = document.getElementById('trendColabFilter');
+        const currentCol = colSel.value || "TODOS";
+        let validNames = new Set();
+        database.forEach(d => {
+            if(empVal === "TODOS" || d.empresa === empVal) {
+                validNames.add(d.name);
+            }
+        });
+        let colabNames = [...validNames].sort();
+        const colabs = ["TODOS", ...colabNames];
+        colSel.innerHTML = "";
+        colabs.forEach(v => colSel.innerHTML += `<option value="${v}">Colaborador: ${v}</option>`);
+        colSel.value = colabs.includes(currentCol) ? currentCol : "TODOS";
+    }
+
+    function handleTrendEmpresaChange() {
+        updateTrendColabFilter();
+        filterData();
     }
 
     function filterData() {
@@ -577,9 +734,17 @@
         const tf = document.getElementById('tomadorFilter').value;
         const ef = document.getElementById('empresaFilter').value;
         const q = document.getElementById('tableSearch').value.toLowerCase();
+        
+        const monthsS2 = ["Jun/26", "Jul/26", "Ago/26", "Set/26", "Out/26", "Nov/26"];
+        
         let agg = {};
         database.forEach(row => {
-            if (mf !== "ALL" && row.mes !== mf) return;
+            if (mf === "2SEM26") {
+                if (!monthsS2.includes(row.mes)) return;
+            } else if (mf !== "ALL" && row.mes !== mf) {
+                return;
+            }
+
             if (q && !row.name.toLowerCase().includes(q)) return;
             if (tf !== "TODOS" && row.tomador !== tf) return;
             if (ef !== "TODOS" && row.empresa !== ef) return;
@@ -606,7 +771,6 @@
         applyPrivacy();
     }
 
-    // --- Lógica de Filtro e Ordenação da Aba Colaboradores ---
     let currentColabSort = { column: 'name', direction: 'asc' };
 
     function populateColabFilters() {
@@ -715,14 +879,12 @@
         }
     }
 
-    // --- CHART & MODAL LOGIC ---
     let editingOriginalName = null;
     
     function openEditModal(n){ const m=document.getElementById('editModal'); document.getElementById('monthRowsContainer').innerHTML=''; editingOriginalName=(n==='NEW'?null:n); document.getElementById('modalTitle').innerText=(n==='NEW'?"Novo Colaborador":"Editar: "+n); document.getElementById('editName').value=(n==='NEW'?"":n); document.getElementById('btnDeleteEmployee').style.display=(n==='NEW'?'none':'block'); if(n!=='NEW') database.filter(d=>d.name===n).forEach(r=>addMonthRow(r)); else addMonthRow(); m.style.display='flex'; }
     function closeEditModal(){ document.getElementById('editModal').style.display='none'; }
     function addMonthRow(d=null){ const c=document.getElementById('monthRowsContainer'); const v=d||{mes:"Dez/25",empresa:"G Lux",tomador:"EM CASA",censo_q:0,censo_v:0,fisc_q:0,fisc_v:0,despesa_total:0,premiacao:0,deslocamento:0}; const div=document.createElement('div'); div.className="bg-slate-900 p-4 rounded-xl border border-slate-700 grid grid-cols-1 md:grid-cols-4 gap-3 relative"; div.innerHTML=`<div class="md:col-span-1"><label class="text-[10px] uppercase text-slate-500 font-bold">Mês</label><input type="text" class="inp-mes w-full bg-slate-800 border border-slate-600 rounded p-1 text-xs text-white" value="${v.mes}"></div><div class="md:col-span-1"><label class="text-[10px] uppercase text-slate-500 font-bold">Empresa</label><input type="text" class="inp-emp w-full bg-slate-800 border border-slate-600 rounded p-1 text-xs text-white" value="${v.empresa}"></div><div class="md:col-span-1"><label class="text-[10px] uppercase text-slate-500 font-bold">Tomador</label><input type="text" class="inp-tom w-full bg-slate-800 border border-slate-600 rounded p-1 text-xs text-white" value="${v.tomador}"></div><div class="md:col-span-1 flex items-end justify-end"><button onclick="this.parentElement.parentElement.remove()" class="text-rose-500 hover:text-rose-400 text-xs font-bold">Remover</button></div><div class="md:col-span-4 h-[1px] bg-slate-800 my-1"></div><div><label class="text-[10px] uppercase text-slate-500 font-bold">Qtd Censo</label><input type="number" step="0.01" class="inp-cq w-full bg-slate-800 border border-slate-600 rounded p-1 text-xs text-white" value="${v.censo_q}"></div><div><label class="text-[10px] uppercase text-emerald-600 font-bold">R$ Censo</label><input type="number" step="0.01" class="inp-cv w-full bg-slate-800 border border-slate-600 rounded p-1 text-xs text-emerald-400 font-bold" value="${v.censo_v}"></div><div><label class="text-[10px] uppercase text-slate-500 font-bold">Qtd Fisc</label><input type="number" step="0.01" class="inp-fq w-full bg-slate-800 border border-slate-600 rounded p-1 text-xs text-white" value="${v.fisc_q}"></div><div><label class="text-[10px] uppercase text-emerald-600 font-bold">R$ Fisc</label><input type="number" step="0.01" class="inp-fv w-full bg-slate-800 border border-slate-600 rounded p-1 text-xs text-emerald-400 font-bold" value="${v.fisc_v}"></div><div><label class="text-[10px] uppercase text-rose-500 font-bold">Despesa</label><input type="number" step="0.01" class="inp-dt w-full bg-slate-800 border border-slate-600 rounded p-1 text-xs text-rose-400 font-bold" value="${v.despesa_total}"></div><div><label class="text-[10px] uppercase text-slate-500 font-bold">Premiação</label><input type="number" step="0.01" class="inp-pr w-full bg-slate-800 border border-slate-600 rounded p-1 text-xs text-white" value="${v.premiacao}"></div><div><label class="text-[10px] uppercase text-slate-500 font-bold">Deslocamento</label><input type="number" step="0.01" class="inp-ds w-full bg-slate-800 border border-slate-600 rounded p-1 text-xs text-white" value="${v.deslocamento}"></div>`; c.appendChild(div); }
     
-    // --- FUNÇÕES DE SALVAR E EXCLUIR ---
     function saveEmployee() {
         const nameInput = document.getElementById('editName').value.trim().toUpperCase();
         if (!nameInput) { alert("Por favor, insira o nome do colaborador."); return; }
@@ -744,7 +906,7 @@
             database.push(newRecord); newRecordsCount++;
         });
 
-        populateFilters(); populateColabFilters(); populateTrendFilters(); filterData(); renderColaboradores();
+        populateFilters(); populateColabFilters(); populateTrendFilters(); populateFatFilters(); filterData(); renderColaboradores();
         alert(`Sucesso!\nColaborador "${nameInput}" salvo com ${newRecordsCount} registros.`);
         closeEditModal();
     }
@@ -756,15 +918,13 @@
             const initialLength = database.length;
             database = database.filter(d => d.name !== editingOriginalName);
             if (database.length === initialLength) { alert("Erro: Não foi possível encontrar os registros para excluir."); } 
-            else { populateFilters(); populateColabFilters(); populateTrendFilters(); filterData(); renderColaboradores(); alert("Colaborador excluído com sucesso."); closeEditModal(); }
+            else { populateFilters(); populateColabFilters(); populateTrendFilters(); populateFatFilters(); filterData(); renderColaboradores(); alert("Colaborador excluído com sucesso."); closeEditModal(); }
         }
     }
 
-    // --- GRAPH RENDER ---
     const commonOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#94a3b8' } } }, scales: { y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } }, x: { grid: { display: false }, ticks: { color: '#94a3b8' } } } };
 
     function renderCharts(d){ 
-        // ===== EVOLUÇÃO FINANCEIRA (com filtros NOVOS) =====
         const monthOrder = ["Dez/25", "Jan/26", "Fev/26", "Mar/26", "Abr/26", "Mai/26", "Jun/26", "Jul/26", "Ago/26", "Set/26", "Out/26", "Nov/26"];
 
         const trendEmp = (document.getElementById('trendEmpresaFilter')?.value) || "TODOS";
@@ -789,18 +949,15 @@
         });
 
         let labelsTrend = monthOrder.filter(m => (prodByMonth[m] > 0 || despByMonth[m] > 0));
-        if (trendPer !== "ALL") labelsTrend = [trendPer]; // mostra exatamente o período selecionado
+        if (trendPer !== "ALL") labelsTrend = [trendPer]; 
 
-        // --- ALTERAÇÃO AQUI: Chama a nova função TrendChart ---
         createTrendChart(
             'chartTrend',
             labelsTrend,
             labelsTrend.map(m => prodByMonth[m]),
             labelsTrend.map(m => despByMonth[m])
         );
-        // -----------------------------------------------------
 
-        // ===== TOP 10 RANKING (maiores saldos a receber + labels 1º/2º... + tooltip em R$) =====
         const saldoMap = {};
         database.forEach(r => {
             const saldo = ((r.censo_v || 0) + (r.fisc_v || 0)) - (r.despesa_total || 0);
@@ -809,7 +966,7 @@
         });
 
         const top10 = Object.entries(saldoMap)
-            .filter(([,v]) => v > 0)                  // apenas "a receber"
+            .filter(([,v]) => v > 0)                  
             .sort(([,a],[,b]) => b - a)
             .slice(0, 10);
 
@@ -818,7 +975,6 @@
 
         createHorizontalBarChart('chartRanking', labelsRanking, dataRanking);
 
-        // ===== MIX DE PRODUÇÃO (não alterar) =====
         const mixMap={}; 
         database.forEach(x=>{
             if(!mixMap[x.tomador])mixMap[x.tomador]={c:0,f:0};
@@ -828,7 +984,6 @@
         const mixL=Object.keys(mixMap); 
         createStackedBarChart('chartMix', mixL, mixL.map(l=>mixMap[l].c), mixL.map(l=>mixMap[l].f));
 
-        // ===== SHARE POR EMPRESA (tooltip em R$) =====
         const shMap={}; 
         database.forEach(x=>{
             if(!shMap[x.empresa])shMap[x.empresa]=0;
@@ -838,12 +993,9 @@
         createDoughnutChart('chartShare', shL, shL.map(l=>shMap[l]));
     }
     
-    // --- ALTERAÇÃO AQUI: Nova função createTrendChart com 2 linhas ---
     function createTrendChart(id, l, dp, dd) {
         if(chartInstances[id]) chartInstances[id].destroy();
         const ctx=document.getElementById(id).getContext('2d');
-        
-        // Gradients
         const gradProd = ctx.createLinearGradient(0,0,0,400);
         gradProd.addColorStop(0, 'rgba(16, 185, 129, 0.2)');
         gradProd.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
@@ -906,7 +1058,6 @@
             }
         });
     }
-    // -------------------------------------------------------------
 
     function createHorizontalBarChart(id, l, d) {
         if(chartInstances[id]) chartInstances[id].destroy();
@@ -939,7 +1090,42 @@
         });
     }
 
-    function createStackedBarChart(id, l, dc, df) { if(chartInstances[id]) chartInstances[id].destroy(); const ctx=document.getElementById(id).getContext('2d'); chartInstances[id]=new Chart(ctx, {type:'bar', data:{labels:l, datasets:[{label:'Censo', data:dc, backgroundColor:'#8b5cf6', borderRadius:4}, {label:'Fiscalização', data:df, backgroundColor:'#f59e0b', borderRadius:4}]}, options:{...commonOptions, scales:{x:{stacked:true, grid:{display:false}, ticks:{color:'#94a3b8'}}, y:{stacked:true, grid:{color:'#1e293b'}, ticks:{color:'#94a3b8'}}}}}); }
+    function createStackedBarChart(id, l, dc, df) { 
+        if(chartInstances[id]) chartInstances[id].destroy(); 
+        const ctx=document.getElementById(id).getContext('2d'); 
+        chartInstances[id]=new Chart(ctx, {
+            type:'bar', 
+            data:{
+                labels:l, 
+                datasets:[
+                    {label:'Censo', data:dc, backgroundColor:'#8b5cf6', borderRadius:4}, 
+                    {label:'Fiscalização', data:df, backgroundColor:'#f59e0b', borderRadius:4}
+                ]
+            }, 
+            options:{
+                ...commonOptions, 
+                plugins: {
+                    ...commonOptions.plugins,
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => `${ctx.dataset.label}: ${fmt.format(ctx.parsed.y || 0)}`
+                        }
+                    }
+                },
+                scales:{
+                    x:{stacked:true, grid:{display:false}, ticks:{color:'#94a3b8'}}, 
+                    y:{
+                        stacked:true, 
+                        grid:{color:'#1e293b'}, 
+                        ticks:{
+                            color:'#94a3b8',
+                            callback: (v) => fmt.format(v)
+                        }
+                    }
+                }
+            }
+        }); 
+    }
     
     function createDoughnutChart(id, l, d) {
         if(chartInstances[id]) chartInstances[id].destroy();
@@ -962,7 +1148,33 @@
         });
     }
 
-    function switchTab(t) { document.querySelectorAll('.tab-btn').forEach(b=>{b.classList.remove('active'); b.classList.add('text-slate-400');}); document.getElementById('tab-'+t).classList.add('active'); document.getElementById('tab-'+t).classList.remove('text-slate-400'); document.getElementById('section-overview').classList.toggle('hidden',t!=='overview'); document.getElementById('main-filter-bar').style.display=t==='colaboradores'?'none':'flex'; document.getElementById('section-analytics').classList.toggle('hidden',t!=='analytics'); document.getElementById('section-colaboradores').classList.toggle('hidden',t!=='colaboradores'); if(t==='analytics') setTimeout(()=>filterData(),50); if(t==='colaboradores') renderColaboradores(); }
+    function switchTab(t) { 
+        document.querySelectorAll('.tab-btn').forEach(b=>{b.classList.remove('active'); b.classList.add('text-slate-400');}); 
+        document.getElementById('tab-'+t).classList.add('active'); 
+        document.getElementById('tab-'+t).classList.remove('text-slate-400'); 
+        
+        document.getElementById('section-overview').classList.add('hidden');
+        document.getElementById('section-analytics').classList.add('hidden');
+        document.getElementById('section-colaboradores').classList.add('hidden');
+        document.getElementById('section-faturamento').classList.add('hidden'); 
+        
+        document.getElementById('main-filter-bar').style.display = (t==='overview' ? 'flex' : 'none');
+        document.getElementById('kpi-overview-section').style.display = (t==='overview' ? 'grid' : 'none');
+
+        if(t === 'overview') {
+            document.getElementById('section-overview').classList.remove('hidden');
+        } else if(t === 'analytics') {
+            document.getElementById('section-analytics').classList.remove('hidden');
+            setTimeout(()=>filterData(),50);
+        } else if(t === 'colaboradores') {
+            document.getElementById('section-colaboradores').classList.remove('hidden');
+            renderColaboradores();
+        } else if(t === 'faturamento') {
+            document.getElementById('section-faturamento').classList.remove('hidden');
+            renderFaturamento();
+        }
+    }
+
     function togglePrivacy() { isPrivacyMode = !isPrivacyMode; document.getElementById('privacy-icon').innerText = isPrivacyMode ? "visibility_off" : "visibility"; applyPrivacy(); }
     function applyPrivacy() { document.querySelectorAll('.sensitive-data').forEach(el => { if (isPrivacyMode) el.classList.add('privacy-blur'); else el.classList.remove('privacy-blur'); }); }
     function toggleTheme() { isLightMode = !isLightMode; document.body.classList.toggle('light-mode', isLightMode); document.getElementById('theme-icon').innerText = isLightMode ? "light_mode" : "dark_mode"; checkTheme(); }
@@ -973,9 +1185,281 @@
     function updateSidePanelContent(name) { const pD = database.filter(r => r.name === name); if(!pD.length) return; const mf = document.getElementById('monthFilter').value; const fH = mf === "ALL" ? pD : pD.filter(r => r.mes === mf); const lR = fH[fH.length - 1] || pD[0]; document.getElementById('resumoName').innerText = lR.name; document.getElementById('resumoEmpresaTag').innerText = lR.empresa; document.getElementById('resumoTomadorTag').innerText = lR.tomador; document.getElementById('resumoEmpresaTag').className = `text-[10px] font-bold uppercase px-3 py-1 rounded-full ${getCompanyBadgeClass(lR.empresa)}`; document.getElementById('resumoTomadorTag').className = `text-[10px] font-bold uppercase px-3 py-1 rounded-full ${getTomadorBadgeClass(lR.tomador)}`; const tP = fH.reduce((acc, r) => acc + (r.censo_v || 0) + (r.fisc_v || 0), 0); const tD = fH.reduce((acc, r) => acc + (r.despesa_total || 0), 0); const sal = tP - tD; document.getElementById('resumoValueFinal').innerText = fmt.format(sal); document.getElementById('resumoValueFinal').className = `text-4xl font-black sensitive-data ${sal < 0 ? 'text-rose-500' : 'text-emerald-500'}`; document.getElementById('resumoNegativeNotice').innerText = sal < 0 ? "Saldo devedor." : ""; const c = document.getElementById('resumoContent'); c.innerHTML = ''; fH.forEach(m => { const pt = (m.censo_v || 0) + (m.fisc_v || 0); const dt = (m.despesa_total || 0); const card = document.createElement('div'); card.className = "bg-slate-800/50 border border-slate-700 rounded-[2rem] shadow-sm p-6 space-y-4 hover:bg-slate-800 transition-all"; card.innerHTML = ` <div class="flex justify-between items-center border-b pb-3 border-slate-700"> <span class="text-xs font-black text-blue-500 uppercase tracking-widest">${m.mes}</span> <span class="text-[9px] font-bold text-slate-500 bg-slate-900 px-2 py-1 rounded border border-slate-700">REGISTRO</span> </div> <div class="grid grid-cols-2 gap-4 text-[11px]"> <div class="space-y-2"> <p class="text-[9px] font-black uppercase text-slate-500 tracking-tighter">Produção</p> <div class="flex justify-between text-slate-300"><span>Censo:</span> <strong>${fmt.format(m.censo_v)} <span class="text-xs text-slate-500 font-normal">(${m.censo_q || 0} pts)</span></strong></div> <div class="flex justify-between text-slate-300"><span>Fisc:</span> <strong>${fmt.format(m.fisc_v)} <span class="text-xs text-slate-500 font-normal">(${m.fisc_q || 0} pts)</span></strong></div> </div> <div class="space-y-2 border-l pl-4 border-slate-700"> <p class="text-[9px] font-black uppercase text-slate-500 tracking-tighter">Detalhamento Despesas</p> <div class="flex justify-between text-slate-300"><span>Premiação:</span> <span class="text-blue-400 font-bold">${fmt.format(m.premiacao)}</span></div> <div class="flex justify-between text-slate-300"><span>Desloc/Adt:</span> <span class="text-amber-400 font-bold">${fmt.format(m.deslocamento)}</span></div> </div> </div> <div class="grid grid-cols-2 gap-3 pt-2"> <div class="bg-slate-900 p-3 rounded-2xl border border-slate-700 text-center"> <p class="text-[9px] font-black uppercase text-slate-500 mb-1">Total Produção</p> <p class="text-sm font-black text-slate-100 sensitive-data">${fmt.format(pt)}</p> </div> <div class="bg-rose-950/20 p-3 rounded-2xl border border-rose-900/30 text-center"> <p class="text-[9px] font-black uppercase text-rose-500 mb-1">Total Saídas</p> <p class="text-sm font-black text-rose-400 sensitive-data">${fmt.format(dt)}</p> </div> </div> `; c.appendChild(card); }); applyPrivacy(); }
 
     function downloadTemplate() { const wb = XLSX.utils.book_new(); const headers = ["Mês", "Empresa", "Nome", "Tomador", "Qtd Censo", "Produção Censo (R$)", "Qtd Fisc", "Produção Fiscalização (R$)", "Despesa Total (R$)", "Premiação (R$)", "Deslocamento (R$)"]; const exampleData = [ ["Dez/25", "G Lux", "Fulano de Tal", "EQUATORIAL PI", 1000, 1500.50, 0, 0, 800, 100, 700], ["Jan/26", "G Lux", "Beltrano", "EM CASA", 0, 0, 500, 3200.00, 1200, 0, 1200] ]; const ws = XLSX.utils.aoa_to_sheet([headers, ...exampleData]); XLSX.utils.book_append_sheet(wb, ws, "DADOS_MENSAL"); XLSX.writeFile(wb, "Modelo_Importacao_Mensal_JVM_Pontos.xlsx"); }
-    async function handleImport(event) { const file = event.target.files[0]; if (!file) return; const data = await file.arrayBuffer(); const workbook = XLSX.read(data); const firstSheet = workbook.Sheets[workbook.SheetNames[0]]; const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 }); let newEntries = []; for(let i = 1; i < jsonData.length; i++) { const row = jsonData[i]; if(!row[0] || !row[2]) continue; const newRecord = { mes: String(row[0]).trim(), empresa: String(row[1] || "G Lux").trim(), name: String(row[2]).trim().toUpperCase(), tomador: String(row[3]).trim().toUpperCase(), censo_q: parseFloat(row[4]) || 0, censo_v: parseFloat(row[5]) || 0, fisc_q: parseFloat(row[6]) || 0, fisc_v: parseFloat(row[7]) || 0, despesa_total: parseFloat(row[8]) || 0, premiacao: parseFloat(row[9]) || 0, deslocamento: parseFloat(row[10]) || 0 }; const existingIdx = database.findIndex(d => d.mes === newRecord.mes && d.name === newRecord.name); if(existingIdx >= 0) { database[existingIdx] = newRecord; } else { database.push(newRecord); } } populateFilters(); populateColabFilters(); populateTrendFilters(); filterData(); if(document.getElementById('tab-colaboradores').classList.contains('active')) renderColaboradores(); alert(`Importação concluída.`); }
+    async function handleImport(event) { const file = event.target.files[0]; if (!file) return; const data = await file.arrayBuffer(); const workbook = XLSX.read(data); const firstSheet = workbook.Sheets[workbook.SheetNames[0]]; const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 }); let newEntries = []; for(let i = 1; i < jsonData.length; i++) { const row = jsonData[i]; if(!row[0] || !row[2]) continue; const newRecord = { mes: String(row[0]).trim(), empresa: String(row[1] || "G Lux").trim(), name: String(row[2]).trim().toUpperCase(), tomador: String(row[3]).trim().toUpperCase(), censo_q: parseFloat(row[4]) || 0, censo_v: parseFloat(row[5]) || 0, fisc_q: parseFloat(row[6]) || 0, fisc_v: parseFloat(row[7]) || 0, despesa_total: parseFloat(row[8]) || 0, premiacao: parseFloat(row[9]) || 0, deslocamento: parseFloat(row[10]) || 0 }; const existingIdx = database.findIndex(d => d.mes === newRecord.mes && d.name === newRecord.name); if(existingIdx >= 0) { database[existingIdx] = newRecord; } else { database.push(newRecord); } } populateFilters(); populateColabFilters(); populateTrendFilters(); populateFatFilters(); filterData(); if(document.getElementById('tab-colaboradores').classList.contains('active')) renderColaboradores(); alert(`Importação concluída.`); }
     function downloadDashboard() { const dataScript = `\n<script id="persisted-data">window.savedDatabase = ${JSON.stringify(database)};<\/script>`; let htmlContent = document.documentElement.outerHTML; htmlContent = htmlContent.replace(/<script id="persisted-data">.*?<\/script>/s, ''); const insertPosition = htmlContent.indexOf('</body>'); htmlContent = htmlContent.slice(0, insertPosition) + dataScript + htmlContent.slice(insertPosition); const blob = new Blob([htmlContent], {type: 'text/html'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Dashboard_JVM_2026_Completo.html'; a.click(); }
     function exportExcel() { const wb = XLSX.utils.book_new(); const rows = [["Mês", "Empresa", "Nome", "Tomador", "Qtd Censo", "Produção Censo (R$)", "Qtd Fisc", "Produção Fiscalização (R$)", "Despesa Total (R$)", "Premiação (R$)", "Deslocamento (R$)"]]; database.forEach(d => { rows.push([d.mes, d.empresa, d.name, d.tomador, d.censo_q, d.censo_v, d.fisc_q, d.fisc_v, d.despesa_total, d.premiacao, d.deslocamento]); }); const ws = XLSX.utils.aoa_to_sheet(rows); XLSX.utils.book_append_sheet(wb, ws, "Base_Consolidada"); XLSX.writeFile(wb, "JVM_Base_Completa_2026.xlsx"); }
+
+    /* ===== LÓGICA EXCLUSIVA DA ABA FATURAMENTO (ATUALIZADA) ===== */
+    const PRICE_CENSO = 8.34;
+    const PRICE_FISC = 20.20;
+    
+    // Variável para controle de ordenação na aba Faturamento
+    let currentFatSort = { column: 'rev_total', direction: 'desc' };
+
+    function populateFatFilters() {
+        const empSel = document.getElementById('fatEmpresaFilter');
+        if (!empSel) return;
+        const empresas = ["TODOS", ...new Set(database.map(r => r.empresa))].sort();
+        const current = empSel.value;
+        empSel.innerHTML = "";
+        empresas.forEach(v => empSel.innerHTML += `<option value="${v}">Empresa: ${v}</option>`);
+        empSel.value = current || "TODOS";
+        updateFatTomadorFilter();
+    }
+
+    function updateFatTomadorFilter() {
+        const empVal = document.getElementById('fatEmpresaFilter').value;
+        const tomSel = document.getElementById('fatTomadorFilter');
+        const current = tomSel.value;
+
+        const availableTomadores = new Set();
+        database.forEach(i => {
+            if (empVal === "TODOS" || i.empresa === empVal) {
+                availableTomadores.add(i.tomador);
+            }
+        });
+        const tomadores = ["TODOS", ...availableTomadores].sort();
+
+        tomSel.innerHTML = "";
+        tomadores.forEach(v => tomSel.innerHTML += `<option value="${v}">Tomador: ${v}</option>`);
+        tomSel.value = tomadores.includes(current) ? current : "TODOS";
+        
+        updateFatColabFilter(); // Cascata para o colaborador
+    }
+    
+    function updateFatColabFilter() {
+        const empVal = document.getElementById('fatEmpresaFilter').value;
+        const tomVal = document.getElementById('fatTomadorFilter').value;
+        const colSel = document.getElementById('fatColabFilter');
+        const current = colSel.value;
+
+        const availableColabs = new Set();
+        database.forEach(i => {
+            const matchEmp = (empVal === "TODOS" || i.empresa === empVal);
+            const matchTom = (tomVal === "TODOS" || i.tomador === tomVal);
+            
+            if (matchEmp && matchTom) {
+                availableColabs.add(i.name);
+            }
+        });
+        const colabs = ["TODOS", ...availableColabs].sort();
+
+        colSel.innerHTML = "";
+        colabs.forEach(v => colSel.innerHTML += `<option value="${v}">Colaborador: ${v}</option>`);
+        colSel.value = colabs.includes(current) ? current : "TODOS";
+    }
+
+    function sortFatData(column) {
+        if (currentFatSort.column === column) {
+            currentFatSort.direction = currentFatSort.direction === 'asc' ? 'desc' : 'asc';
+        } else {
+            currentFatSort.column = column;
+            currentFatSort.direction = 'desc'; // Default desc para valores
+            if (column === 'name') currentFatSort.direction = 'asc';
+        }
+        
+        // Atualiza ícones visuais
+        document.querySelectorAll('#section-faturamento .sort-icon').forEach(icon => {
+            icon.classList.remove('active');
+            icon.innerText = 'unfold_more';
+        });
+        const activeIcon = document.getElementById(`sort-fat-${column}`);
+        if(activeIcon) {
+            activeIcon.classList.add('active');
+            activeIcon.innerText = currentFatSort.direction === 'asc' ? 'expand_less' : 'expand_more';
+        }
+        
+        renderFaturamento();
+    }
+
+    function renderFaturamento() {
+        const monthF = document.getElementById('fatMonthFilter').value;
+        const empF = document.getElementById('fatEmpresaFilter').value;
+        const tomF = document.getElementById('fatTomadorFilter').value;
+        const colF = document.getElementById('fatColabFilter').value;
+        const monthsS2 = ["Jun/26", "Jul/26", "Ago/26", "Set/26", "Out/26", "Nov/26"];
+
+        // 1. Filtrar e Agrupar Dados
+        let agg = {};
+        let totalCenso = 0;
+        let totalFisc = 0;
+
+        database.forEach(row => {
+            // Filtros
+            if (monthF === "2SEM26") { if (!monthsS2.includes(row.mes)) return; }
+            else if (monthF !== "ALL" && row.mes !== monthF) return;
+            
+            if (empF !== "TODOS" && row.empresa !== empF) return;
+            if (tomF !== "TODOS" && row.tomador !== tomF) return;
+            if (colF && colF !== "TODOS" && row.name !== colF) return;
+
+            // Agregação
+            if (!agg[row.name]) {
+                agg[row.name] = { 
+                    name: row.name, 
+                    empresa: row.empresa, 
+                    tomador: row.tomador, 
+                    qtd_censo: 0, 
+                    qtd_fisc: 0
+                };
+            }
+            
+            agg[row.name].qtd_censo += (row.censo_q || 0);
+            agg[row.name].qtd_fisc += (row.fisc_q || 0);
+        });
+
+        let list = Object.values(agg);
+
+        // 2. Calcular Totais Monetários
+        list.forEach(item => {
+            item.rev_censo = item.qtd_censo * PRICE_CENSO;
+            item.rev_fisc = item.qtd_fisc * PRICE_FISC;
+            item.rev_total = item.rev_censo + item.rev_fisc;
+            
+            totalCenso += item.rev_censo;
+            totalFisc += item.rev_fisc;
+        });
+
+        const totalRevenue = totalCenso + totalFisc;
+
+        // 3. Atualizar KPIs
+        document.getElementById('kpi-fat-censo').innerText = fmt.format(totalCenso);
+        document.getElementById('kpi-fat-fisc').innerText = fmt.format(totalFisc);
+        document.getElementById('kpi-fat-total').innerText = fmt.format(totalRevenue);
+
+        // 4. Ordenação
+        const { column, direction } = currentFatSort;
+        const m = direction === 'asc' ? 1 : -1;
+        list.sort((a, b) => {
+            let valA = a[column];
+            let valB = b[column];
+            if (typeof valA === 'string') return valA.localeCompare(valB) * m;
+            return (valA - valB) * m;
+        });
+
+        // 5. Renderizar Tabela
+        const tbody = document.getElementById('fatTableBody');
+        tbody.innerHTML = '';
+        if(list.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500 italic">Nenhum dado encontrado para o período.</td></tr>`;
+        } else {
+            list.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/50 transition-colors border-b border-slate-800";
+                tr.style.borderColor = "var(--border-card)";
+                tr.innerHTML = `
+                    <td class="px-6 py-4">
+                        <div class="font-bold text-slate-200">${item.name}</div>
+                        <div class="text-[10px] text-slate-500 uppercase">${item.empresa} • ${item.tomador}</div>
+                    </td>
+                    <td class="px-6 py-4 text-center text-slate-400 font-mono text-xs">${Math.round(item.qtd_censo)}</td>
+                    <td class="px-6 py-4 text-right text-purple-400 font-bold font-mono text-xs">${fmt.format(item.rev_censo)}</td>
+                    <td class="px-6 py-4 text-center text-slate-400 font-mono text-xs">${Math.round(item.qtd_fisc)}</td>
+                    <td class="px-6 py-4 text-right text-amber-400 font-bold font-mono text-xs">${fmt.format(item.rev_fisc)}</td>
+                    <td class="px-6 py-4 text-right text-emerald-500 font-black font-mono text-sm">${fmt.format(item.rev_total)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        applyPrivacy();
+
+        // 6. Renderizar Gráficos
+        renderFatCharts(list);
+    }
+
+    function renderFatCharts(data) {
+        // --- Gráfico 1: Top 10 Ranking de Faturamento ---
+        // Ordena por receita total decrescente para o gráfico (independente da tabela)
+        const rankingData = [...data].sort((a,b) => b.rev_total - a.rev_total).slice(0, 10);
+        const labels = rankingData.map(d => d.name.split(' ')[0]); 
+        const values = rankingData.map(d => d.rev_total);
+
+        if(chartInstances['chartFatRanking']) chartInstances['chartFatRanking'].destroy();
+        const ctx1 = document.getElementById('chartFatRanking').getContext('2d');
+        chartInstances['chartFatRanking'] = new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{ 
+                    label: 'Faturamento Total', 
+                    data: values, 
+                    backgroundColor: '#10b981', 
+                    borderRadius: 4 
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y', // Barra Horizontal
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { grid: { display: false }, ticks: { color: '#94a3b8' } },
+                    x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8', callback: (v) => fmt.format(v) } }
+                }
+            }
+        });
+
+        // --- Gráfico 2: Share por Empresa ---
+        const shareMap = {};
+        data.forEach(d => {
+            if(!shareMap[d.empresa]) shareMap[d.empresa] = 0;
+            shareMap[d.empresa] += d.rev_total;
+        });
+        const shareL = Object.keys(shareMap);
+        
+        if(chartInstances['chartFatShare']) chartInstances['chartFatShare'].destroy();
+        const ctx2 = document.getElementById('chartFatShare').getContext('2d');
+        chartInstances['chartFatShare'] = new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: shareL,
+                datasets: [{ 
+                    data: shareL.map(l => shareMap[l]), 
+                    backgroundColor: ['#3b82f6', '#8b5cf6', '#f59e0b', '#ec4899'], 
+                    borderWidth: 0 
+                }]
+            },
+            options: {
+                responsive: true, 
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right', labels: { color: '#94a3b8' } },
+                    tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${fmt.format(ctx.parsed)}` } }
+                }
+            }
+        });
+
+        // --- Gráfico 3: Mix de Faturamento (Tomador) ---
+        const mixMap = {};
+        data.forEach(d => {
+            if(!mixMap[d.tomador]) mixMap[d.tomador] = { censo: 0, fisc: 0 };
+            mixMap[d.tomador].censo += d.rev_censo;
+            mixMap[d.tomador].fisc += d.rev_fisc;
+        });
+        const mixL = Object.keys(mixMap);
+
+        if(chartInstances['chartFatMix']) chartInstances['chartFatMix'].destroy();
+        const ctx3 = document.getElementById('chartFatMix').getContext('2d');
+        chartInstances['chartFatMix'] = new Chart(ctx3, {
+            type: 'bar',
+            data: {
+                labels: mixL,
+                datasets: [
+                    { label: 'Censo (R$)', data: mixL.map(l => mixMap[l].censo), backgroundColor: '#8b5cf6', borderRadius: 4 },
+                    { label: 'Fiscalização (R$)', data: mixL.map(l => mixMap[l].fisc), backgroundColor: '#f59e0b', borderRadius: 4 }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { stacked: true, grid: { display: false }, ticks: { color: '#94a3b8' } },
+                    y: { stacked: true, grid: { color: '#1e293b' }, ticks: { color: '#94a3b8', callback: (v) => fmt.format(v) } }
+                },
+                plugins: { legend: { labels: { color: '#94a3b8' } } }
+            }
+        });
+    }
 
     window.onload = init;
 </script>

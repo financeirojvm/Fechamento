@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Fechamento de Produção - JVM 2026</title>
     
     <script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=X-gPhZ0b272ugj_dvqPwazTGcPChnPhKGGPi_XLOdb9ZPgW52cTwsMLsvUAW2Xkg4b9BbPTd0EcX7YuSmtkxsMorcJdrpKYBw9JR7lDWySBSlh009191YQg4javQeGHelQ12v2yKlq306AnHXmgfIUkIY1YOAlGcBtLOyREU52B57sezkF0d5CHfqRaA3DI5" charset="UTF-8"></script><script src="https://cdn.tailwindcss.com"></script>
@@ -18,7 +18,7 @@
         body.light-mode { background-image: none; }
         .dark-card { background: var(--bg-card); border: 1px solid var(--border-card); transition: background 0.3s, border 0.3s; }
         .glass-header { background: var(--bg-header); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border-card); }
-        .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
         .tab-btn.active { background-color: #2563eb; color: white; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); border-color: #2563eb; }
@@ -27,87 +27,111 @@
         .sort-icon { cursor: pointer; opacity: 0.3; transition: opacity 0.2s; }
         .sort-icon:hover, .sort-icon.active { opacity: 1; color: #3b82f6; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .modal-content { width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; border-radius: 1.5rem; animation: slideUp 0.3s ease-out; }
+        .modal-content { width: 95%; max-width: 800px; max-height: 90vh; overflow-y: auto; border-radius: 1.5rem; animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         select, input { color-scheme: dark; }
         body.light-mode select, body.light-mode input { color-scheme: light; }
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; display: inline-block; margin-right: 5px; vertical-align: middle;}
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Mobile Specific Overrides */
+        @media (max-width: 768px) {
+            .mobile-full-width { width: 100% !important; }
+            .mobile-stack { flex-direction: column !important; align-items: stretch !important; }
+            .mobile-hide { display: none !important; }
+            .mobile-scroll-tabs { overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; padding-bottom: 5px; }
+            /* Painel lateral vira overlay no mobile */
+            #resumoPanel { position: fixed !important; top: 0; left: 0; width: 100% !important; height: 100% !important; z-index: 999; border-radius: 0 !important; margin: 0 !important; }
+        }
+        
         @media print { .no-print { display: none !important; } #resumoPanel { display: block !important; width: 100% !important; border: none !important; position: static !important; } body { background: white; color: black; background-image: none !important; } }
     </style>
 </head>
 <body class="overflow-x-hidden custom-scrollbar">
 
-<nav class="sticky top-0 z-50 glass-header px-6 py-4 flex items-center justify-between no-print shadow-xl">
-    <div class="flex items-center gap-4">
-        <div class="bg-blue-600 p-2 rounded-xl shadow-lg shadow-blue-900/50">
-            <span class="material-symbols-outlined text-white text-2xl">analytics</span>
+<nav class="sticky top-0 z-50 glass-header px-4 md:px-6 py-4 flex flex-col md:flex-row items-start md:items-center justify-between no-print shadow-xl gap-4">
+    <div class="flex items-center gap-4 w-full md:w-auto justify-between">
+        <div class="flex items-center gap-4">
+            <div class="bg-blue-600 p-2 rounded-xl shadow-lg shadow-blue-900/50">
+                <span class="material-symbols-outlined text-white text-2xl">analytics</span>
+            </div>
+            <div>
+                <h1 class="font-black text-lg md:text-xl tracking-tight uppercase italic" style="color: var(--text-main)">Fechamento <span class="text-blue-500 hidden md:inline">Produção</span></h1>
+                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">JVM 2026</p>
+            </div>
         </div>
-        <div>
-            <h1 class="font-black text-xl tracking-tight uppercase italic" style="color: var(--text-main)">Fechamento de <span class="text-blue-500">Produção</span></h1>
-            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Controle de Produção . JVM 2026</p>
+        
+        <div class="flex md:hidden gap-2">
+             <button onclick="togglePrivacy()" class="p-2 rounded-xl border border-slate-700 hover:bg-slate-700 text-slate-400" title="Ocultar Valores">
+                <span class="material-symbols-outlined text-lg" id="privacy-icon-mobile">visibility</span>
+            </button>
+             <button onclick="toggleTheme()" class="p-2 rounded-xl border border-slate-700 hover:bg-slate-700 text-slate-400" title="Alternar Tema">
+                <span class="material-symbols-outlined text-lg" id="theme-icon-mobile">dark_mode</span>
+            </button>
         </div>
     </div>
 
-    <div class="flex items-center gap-6">
-        <div class="p-1 rounded-xl flex no-print gap-1" style="background-color: var(--bg-card); border: 1px solid var(--border-card);">
-            <button class="tab-btn px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 active border border-transparent" id="tab-overview" onclick="switchTab('overview')">
-                <span class="material-symbols-outlined text-sm">dashboard</span> Visão Geral
-            </button>
-            <button class="tab-btn px-6 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all flex items-center gap-2 border border-transparent cursor-pointer" id="tab-faturamento" onclick="switchTab('faturamento')">
-                <span class="material-symbols-outlined text-sm">attach_money</span> Faturamento
-            </button>
-            <button class="tab-btn px-6 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all flex items-center gap-2 border border-transparent cursor-pointer" id="tab-analytics" onclick="switchTab('analytics')">
-                <span class="material-symbols-outlined text-sm">insert_chart</span> Estatísticas
-            </button>
-            <button class="tab-btn px-6 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all flex items-center gap-2 border border-transparent cursor-pointer" id="tab-colaboradores" onclick="switchTab('colaboradores')">
-                <span class="material-symbols-outlined text-sm">groups</span> Colaboradores
-            </button>
-        </div>
-
-        <div class="h-6 w-[1px] bg-slate-700 opacity-30"></div>
-
-        <div class="flex gap-2">
-             <button onclick="togglePrivacy()" class="p-2 rounded-xl border border-slate-700 hover:bg-slate-700 text-slate-400 transition-all" title="Ocultar Valores">
-                <span class="material-symbols-outlined" id="privacy-icon">visibility</span>
-            </button>
-             <button onclick="toggleTheme()" class="p-2 rounded-xl border border-slate-700 hover:bg-slate-700 text-slate-400 transition-all" title="Alternar Tema">
-                <span class="material-symbols-outlined" id="theme-icon">dark_mode</span>
-            </button>
-        </div>
-
-        <div class="relative group no-print">
-            <button class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all border border-slate-700 hover:brightness-110" style="background: var(--bg-card); color: var(--text-main);">
-                <span class="material-symbols-outlined text-blue-500 text-lg">sync</span> Dados
-            </button>
-            <div class="absolute right-0 mt-2 w-72 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl hidden group-hover:block overflow-hidden z-[60]">
-                <button class="w-full px-4 py-4 text-left text-xs font-bold text-white hover:bg-blue-900/30 flex items-center gap-2 border-b border-slate-800 transition-all" onclick="importFromGoogleSheets()" id="btnGoogleSheet">
-                    <span class="material-symbols-outlined text-sm text-green-400">cloud_sync</span> Sincronizar Google Sheets
+    <div class="flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">
+        <div class="w-full md:w-auto overflow-x-auto custom-scrollbar pb-2 md:pb-0">
+            <div class="p-1 rounded-xl flex no-print gap-1 min-w-max" style="background-color: var(--bg-card); border: 1px solid var(--border-card);">
+                <button class="tab-btn px-4 md:px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 active border border-transparent" id="tab-overview" onclick="switchTab('overview')">
+                    <span class="material-symbols-outlined text-sm">dashboard</span> Visão Geral
                 </button>
-                <button class="w-full px-4 py-3 text-left text-xs font-bold text-slate-300 hover:bg-slate-800 flex items-center gap-2" onclick="downloadTemplate()">
-                    <span class="material-symbols-outlined text-sm text-slate-500">download</span> Baixar Modelo Excel
+                <button class="tab-btn px-4 md:px-6 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all flex items-center gap-2 border border-transparent cursor-pointer" id="tab-faturamento" onclick="switchTab('faturamento')">
+                    <span class="material-symbols-outlined text-sm">attach_money</span> Faturamento
                 </button>
-                <button class="w-full px-4 py-3 text-left text-xs font-bold text-slate-300 hover:bg-slate-800 flex items-center gap-2" onclick="document.getElementById('importInput').click()">
-                    <span class="material-symbols-outlined text-sm">file_open</span> Importar Excel Manual
+                <button class="tab-btn px-4 md:px-6 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all flex items-center gap-2 border border-transparent cursor-pointer" id="tab-analytics" onclick="switchTab('analytics')">
+                    <span class="material-symbols-outlined text-sm">insert_chart</span> Estatísticas
                 </button>
-                <button class="w-full px-4 py-3 text-left text-xs font-bold text-slate-300 hover:bg-slate-800 flex items-center gap-2 border-t border-slate-800" onclick="exportExcel()">
-                    <span class="material-symbols-outlined text-sm">table_view</span> Exportar Excel (.xlsx)
-                </button>
-                <button class="w-full px-4 py-3 text-left text-xs font-bold text-slate-300 hover:bg-slate-800 flex items-center gap-2" onclick="downloadDashboard()">
-                    <span class="material-symbols-outlined text-sm">html</span> Exportar Código HTML
+                <button class="tab-btn px-4 md:px-6 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all flex items-center gap-2 border border-transparent cursor-pointer" id="tab-colaboradores" onclick="switchTab('colaboradores')">
+                    <span class="material-symbols-outlined text-sm">groups</span> Colaboradores
                 </button>
             </div>
         </div>
-        <input type="file" id="importInput" class="hidden" accept=".xlsx, .xls" onchange="handleImport(event)">
+
+        <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
+            <div class="hidden md:flex gap-2">
+                 <button onclick="togglePrivacy()" class="p-2 rounded-xl border border-slate-700 hover:bg-slate-700 text-slate-400 transition-all" title="Ocultar Valores">
+                    <span class="material-symbols-outlined" id="privacy-icon">visibility</span>
+                </button>
+                 <button onclick="toggleTheme()" class="p-2 rounded-xl border border-slate-700 hover:bg-slate-700 text-slate-400 transition-all" title="Alternar Tema">
+                    <span class="material-symbols-outlined" id="theme-icon">dark_mode</span>
+                </button>
+            </div>
+
+            <div class="relative no-print w-full md:w-auto">
+                <button onclick="toggleDataMenu()" class="w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all border border-slate-700 hover:brightness-110" style="background: var(--bg-card); color: var(--text-main);">
+                    <span class="material-symbols-outlined text-blue-500 text-lg">sync</span> Dados
+                </button>
+                <div id="dataMenuDropdown" class="hidden absolute right-0 mt-2 w-full md:w-72 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl overflow-hidden z-[70]">
+                    <button class="w-full px-4 py-4 text-left text-xs font-bold text-white hover:bg-blue-900/30 flex items-center gap-2 border-b border-slate-800 transition-all" onclick="importFromGoogleSheets(); toggleDataMenu()" id="btnGoogleSheet">
+                        <span class="material-symbols-outlined text-sm text-green-400">cloud_sync</span> Sincronizar Google Sheets
+                    </button>
+                    <button class="w-full px-4 py-3 text-left text-xs font-bold text-slate-300 hover:bg-slate-800 flex items-center gap-2" onclick="downloadTemplate(); toggleDataMenu()">
+                        <span class="material-symbols-outlined text-sm text-slate-500">download</span> Baixar Modelo Excel
+                    </button>
+                    <button class="w-full px-4 py-3 text-left text-xs font-bold text-slate-300 hover:bg-slate-800 flex items-center gap-2" onclick="document.getElementById('importInput').click(); toggleDataMenu()">
+                        <span class="material-symbols-outlined text-sm">file_open</span> Importar Excel Manual
+                    </button>
+                    <button class="w-full px-4 py-3 text-left text-xs font-bold text-slate-300 hover:bg-slate-800 flex items-center gap-2 border-t border-slate-800" onclick="exportExcel(); toggleDataMenu()">
+                        <span class="material-symbols-outlined text-sm">table_view</span> Exportar Excel (.xlsx)
+                    </button>
+                    <button class="w-full px-4 py-3 text-left text-xs font-bold text-slate-300 hover:bg-slate-800 flex items-center gap-2" onclick="downloadDashboard(); toggleDataMenu()">
+                        <span class="material-symbols-outlined text-sm">html</span> Exportar Código HTML
+                    </button>
+                </div>
+            </div>
+            <input type="file" id="importInput" class="hidden" accept=".xlsx, .xls" onchange="handleImport(event)">
+        </div>
     </div>
 </nav>
 
-<main class="w-full max-w-[1800px] mx-auto p-8 space-y-8">
-    <div class="flex justify-between items-center no-print" id="main-filter-bar">
-        <h2 class="text-2xl font-black italic tracking-tight" style="color: var(--text-main)">Fechamento <span class="text-blue-500">2026</span></h2>
-        <div class="flex gap-4">
-             <div class="relative">
-                <select id="monthFilter" onchange="filterData()" class="bg-slate-800 border border-slate-700 rounded-xl text-sm py-2.5 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 shadow-lg cursor-pointer font-bold">
+<main class="w-full max-w-[1800px] mx-auto p-4 md:p-8 space-y-6 md:space-y-8">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center no-print gap-4" id="main-filter-bar">
+        <h2 class="text-xl md:text-2xl font-black italic tracking-tight" style="color: var(--text-main)">Fechamento <span class="text-blue-500">2026</span></h2>
+        <div class="flex gap-4 w-full md:w-auto">
+             <div class="relative w-full md:w-auto">
+                <select id="monthFilter" onchange="filterData()" class="w-full md:w-auto bg-slate-800 border border-slate-700 rounded-xl text-sm py-2.5 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 shadow-lg cursor-pointer font-bold">
                     <option value="ALL">1º Semestre 2026 (Dez - Mai)</option>
                     <option value="2SEM26">2º Semestre 2026 (Jun - Nov)</option>
                     <option value="Dez/25">Dez/25</option>
@@ -128,7 +152,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 no-print" id="kpi-overview-section">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 no-print" id="kpi-overview-section">
         <div class="dark-card p-6 rounded-3xl shadow-lg">
             <p class="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-2">Total Despesas</p>
             <h2 class="text-3xl font-black text-slate-100 sensitive-data" id="kpi-total-adi" style="color: var(--text-main)">R$ 0,00</h2>
@@ -150,22 +174,22 @@
 
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-8" id="section-overview">
         <div class="xl:col-span-3 dark-card rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col transition-all duration-500" id="mainTableContainer">
-            <div class="p-6 border-b border-slate-800 flex flex-col md:flex-row justify-between items-center bg-slate-900/50 gap-4" style="background-color: var(--bg-hover); border-color: var(--border-card);">
+            <div class="p-6 border-b border-slate-800 flex flex-col xl:flex-row justify-between items-start xl:items-center bg-slate-900/50 gap-4" style="background-color: var(--bg-hover); border-color: var(--border-card);">
                 <div>
                     <h3 class="text-xl font-black tracking-tight italic" style="color: var(--text-main)">Relatório de Produção</h3>
                     <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mt-1">Dados filtrados por tomador e mês</p>
                 </div>
-                <div class="flex flex-wrap items-center gap-3">
-                    <div class="relative">
-                        <select id="empresaFilter" onchange="handleEmpresaChange()" class="bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold py-3 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 cursor-pointer min-w-[150px]"></select>
+                <div class="flex flex-col md:flex-row items-stretch md:items-center gap-3 w-full xl:w-auto">
+                    <div class="relative w-full md:w-auto">
+                        <select id="empresaFilter" onchange="handleEmpresaChange()" class="w-full md:w-auto bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold py-3 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 cursor-pointer min-w-[150px]"></select>
                         <span class="material-symbols-outlined absolute right-3 top-3 text-slate-500 pointer-events-none text-sm">business</span>
                     </div>
-                    <div class="relative">
-                        <select id="tomadorFilter" onchange="filterData()" class="bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold py-3 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 cursor-pointer min-w-[180px]"></select>
+                    <div class="relative w-full md:w-auto">
+                        <select id="tomadorFilter" onchange="filterData()" class="w-full md:w-auto bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold py-3 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 cursor-pointer min-w-[180px]"></select>
                         <span class="material-symbols-outlined absolute right-3 top-3 text-slate-500 pointer-events-none text-sm">filter_alt</span>
                     </div>
-                    <div class="relative">
-                        <input type="text" id="tableSearch" onkeyup="filterData()" class="pl-10 pr-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold w-64 focus:ring-2 focus:ring-blue-500 outline-none text-white shadow-inner" placeholder="BUSCAR COLABORADOR...">
+                    <div class="relative w-full md:w-auto">
+                        <input type="text" id="tableSearch" onkeyup="filterData()" class="w-full md:w-auto pl-10 pr-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold md:w-64 focus:ring-2 focus:ring-blue-500 outline-none text-white shadow-inner" placeholder="BUSCAR COLABORADOR...">
                         <span class="material-symbols-outlined absolute left-3 top-3 text-slate-500 text-sm">search</span>
                     </div>
                 </div>
@@ -178,7 +202,7 @@
                             <th class="px-6 py-5 w-32">Empresa</th>
                             <th class="px-6 py-5"><div class="flex items-center gap-1 cursor-pointer hover:text-white" onclick="sortData('name')">Colaborador <span class="material-symbols-outlined text-sm sort-icon" id="sort-name">unfold_more</span></div></th>
                             <th class="px-6 py-5 w-48"><div class="flex items-center gap-1 cursor-pointer hover:text-white" onclick="sortData('tomador')">Tomador <span class="material-symbols-outlined text-sm sort-icon" id="sort-tomador">unfold_more</span></div></th>
-                            <th class="px-6 py-5 text-right"><div class="flex items-center justify-end gap-1 cursor-pointer hover:text-white" onclick="sortData('despesa')">Despesas Totais <span class="material-symbols-outlined text-sm sort-icon" id="sort-despesa">unfold_more</span></div></th>
+                            <th class="px-6 py-5 text-right"><div class="flex items-center justify-end gap-1 cursor-pointer hover:text-white" onclick="sortData('despesa')">Despesas <span class="material-symbols-outlined text-sm sort-icon" id="sort-despesa">unfold_more</span></div></th>
                             <th class="px-6 py-5 text-right"><div class="flex items-center justify-end gap-1 cursor-pointer hover:text-white" onclick="sortData('producao')">Produção <span class="material-symbols-outlined text-sm sort-icon" id="sort-producao">unfold_more</span></div></th>
                             <th class="px-6 py-5 text-right font-bold text-blue-400"><div class="flex items-center justify-end gap-1 cursor-pointer hover:text-white" onclick="sortData('saldo')">Saldo <span class="material-symbols-outlined text-sm sort-icon" id="sort-saldo">unfold_more</span></div></th>
                             <th class="px-6 py-5 text-center w-24">Resumo</th>
@@ -189,9 +213,16 @@
             </div>
         </div>
 
-        <div class="bg-slate-900 rounded-[2.5rem] shadow-2xl border border-slate-800 overflow-hidden flex flex-col min-h-[750px] sticky top-24 hidden animate-in slide-in-from-right duration-300" id="resumoPanel" style="background: var(--bg-card); border-color: var(--border-card);">
+        <div class="bg-slate-900 rounded-[2.5rem] shadow-2xl border border-slate-800 overflow-hidden flex flex-col min-h-[750px] sticky top-24 hidden animate-in slide-in-from-right duration-300 xl:relative xl:h-auto" id="resumoPanel" style="background: var(--bg-card); border-color: var(--border-card);">
+            <div class="md:hidden p-4 bg-slate-900 border-b border-slate-800 flex items-center gap-2">
+                <button onclick="closeSidePanel()" class="flex items-center gap-2 text-white font-bold text-sm">
+                    <span class="material-symbols-outlined">arrow_back</span> Voltar
+                </button>
+            </div>
+            
             <div class="p-8 bg-black/40 text-white relative" id="resumoHeader">
-                <button onclick="closeSidePanel()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-white/10 p-1 rounded-full"><span class="material-symbols-outlined">close</span></button>
+                <button onclick="closeSidePanel()" class="hidden md:block absolute top-4 right-4 text-slate-400 hover:text-white bg-white/10 p-1 rounded-full"><span class="material-symbols-outlined">close</span></button>
+                
                 <div class="flex justify-between items-start mb-4">
                     <span class="text-[10px] font-bold uppercase tracking-widest text-blue-500">Extrato Detalhado</span>
                     <span class="bg-blue-600 text-[9px] font-black px-2 py-1 rounded text-white">MENSAL</span>
@@ -218,14 +249,14 @@
 
     <div class="space-y-8 animate-in fade-in duration-500 hidden" id="section-faturamento">
         
-        <div class="flex flex-col md:flex-row justify-between items-center bg-slate-900/50 p-6 rounded-[2rem] border border-slate-800 gap-4" style="background-color: var(--bg-hover); border-color: var(--border-card);">
+        <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center bg-slate-900/50 p-6 rounded-[2rem] border border-slate-800 gap-4" style="background-color: var(--bg-hover); border-color: var(--border-card);">
             <div>
                 <h4 class="text-xl font-black tracking-tight text-emerald-400"><span class="material-symbols-outlined text-lg align-middle">attach_money</span> Faturamento Real</h4>
                 <p class="text-xs text-slate-500 font-medium">Cálculo baseado em quantitativos (Censo R$ 8,34 | Fisc R$ 20,20)</p>
             </div>
-            <div class="flex flex-wrap items-center gap-3">
-                <div class="relative">
-                    <select id="fatMonthFilter" onchange="renderFaturamento()" class="bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold py-3 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-emerald-500 cursor-pointer min-w-[150px]">
+            <div class="flex flex-col md:flex-row flex-wrap items-stretch md:items-center gap-3 w-full xl:w-auto">
+                <div class="relative w-full md:w-auto">
+                    <select id="fatMonthFilter" onchange="renderFaturamento()" class="w-full md:w-auto bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold py-3 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-emerald-500 cursor-pointer min-w-[150px]">
                         <option value="ALL">Período: 1º Semestre</option>
                         <option value="2SEM26">Período: 2º Semestre</option>
                         <option value="Dez/25">Dez/25</option>
@@ -243,16 +274,16 @@
                     </select>
                     <span class="material-symbols-outlined absolute right-3 top-3 text-emerald-500 pointer-events-none text-sm">calendar_today</span>
                 </div>
-                <div class="relative">
-                    <select id="fatEmpresaFilter" onchange="updateFatTomadorFilter(); renderFaturamento();" class="bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold py-3 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-emerald-500 cursor-pointer min-w-[150px]"></select>
+                <div class="relative w-full md:w-auto">
+                    <select id="fatEmpresaFilter" onchange="updateFatTomadorFilter(); renderFaturamento();" class="w-full md:w-auto bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold py-3 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-emerald-500 cursor-pointer min-w-[150px]"></select>
                     <span class="material-symbols-outlined absolute right-3 top-3 text-emerald-500 pointer-events-none text-sm">business</span>
                 </div>
-                <div class="relative">
-                    <select id="fatTomadorFilter" onchange="updateFatColabFilter(); renderFaturamento();" class="bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold py-3 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-emerald-500 cursor-pointer min-w-[180px]"></select>
+                <div class="relative w-full md:w-auto">
+                    <select id="fatTomadorFilter" onchange="updateFatColabFilter(); renderFaturamento();" class="w-full md:w-auto bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold py-3 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-emerald-500 cursor-pointer min-w-[180px]"></select>
                     <span class="material-symbols-outlined absolute right-3 top-3 text-emerald-500 pointer-events-none text-sm">filter_alt</span>
                 </div>
-                 <div class="relative">
-                    <select id="fatColabFilter" onchange="renderFaturamento()" class="bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold py-3 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-emerald-500 cursor-pointer min-w-[180px]"></select>
+                 <div class="relative w-full md:w-auto">
+                    <select id="fatColabFilter" onchange="renderFaturamento()" class="w-full md:w-auto bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold py-3 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-emerald-500 cursor-pointer min-w-[180px]"></select>
                     <span class="material-symbols-outlined absolute right-3 top-3 text-emerald-500 pointer-events-none text-sm">person</span>
                 </div>
             </div>
@@ -336,24 +367,24 @@
                     <span class="material-symbols-outlined text-blue-500 text-lg">trending_up</span> Evolução Financeira
                 </h4>
             
-                <div class="flex flex-wrap gap-3 mb-6">
-                    <div class="relative">
+                <div class="flex flex-col md:flex-row flex-wrap gap-3 mb-6">
+                    <div class="relative w-full md:w-auto">
                         <select id="trendEmpresaFilter" onchange="handleTrendEmpresaChange()"
-                            class="bg-slate-800 border border-slate-700 rounded-xl text-[11px] font-black py-2.5 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 cursor-pointer min-w-[160px]">
+                            class="w-full md:w-auto bg-slate-800 border border-slate-700 rounded-xl text-[11px] font-black py-2.5 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 cursor-pointer min-w-[160px]">
                         </select>
                         <span class="material-symbols-outlined absolute right-3 top-2.5 text-slate-500 pointer-events-none text-sm">business</span>
                     </div>
             
-                    <div class="relative">
+                    <div class="relative w-full md:w-auto">
                         <select id="trendColabFilter" onchange="filterData()"
-                            class="bg-slate-800 border border-slate-700 rounded-xl text-[11px] font-black py-2.5 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 cursor-pointer min-w-[220px]">
+                            class="w-full md:w-auto bg-slate-800 border border-slate-700 rounded-xl text-[11px] font-black py-2.5 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 cursor-pointer min-w-[220px]">
                         </select>
                         <span class="material-symbols-outlined absolute right-3 top-2.5 text-slate-500 pointer-events-none text-sm">groups</span>
                     </div>
             
-                    <div class="relative">
+                    <div class="relative w-full md:w-auto">
                         <select id="trendPeriodFilter" onchange="filterData()"
-                            class="bg-slate-800 border border-slate-700 rounded-xl text-[11px] font-black py-2.5 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 cursor-pointer min-w-[190px]">
+                            class="w-full md:w-auto bg-slate-800 border border-slate-700 rounded-xl text-[11px] font-black py-2.5 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 cursor-pointer min-w-[190px]">
                         </select>
                         <span class="material-symbols-outlined absolute right-3 top-2.5 text-slate-500 pointer-events-none text-sm">calendar_month</span>
                     </div>
@@ -369,28 +400,26 @@
 
     <div class="space-y-8 animate-in fade-in duration-500 hidden" id="section-colaboradores">
         <div class="dark-card rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-800">
-            <div class="p-6 border-b border-slate-800 flex flex-col md:flex-row justify-between items-center bg-slate-900/50 gap-4" style="background-color: var(--bg-hover); border-color: var(--border-card);">
+            <div class="p-6 border-b border-slate-800 flex flex-col xl:flex-row justify-between items-start xl:items-center bg-slate-900/50 gap-4" style="background-color: var(--bg-hover); border-color: var(--border-card);">
                 <div>
                     <h4 class="text-xl font-black tracking-tight" style="color: var(--text-main)">Gestão de Colaboradores</h4>
                     <p class="text-xs text-slate-500 font-medium">Edite, adicione ou remova registros.</p>
                 </div>
-                <div class="flex flex-wrap items-center gap-3">
-                    <button onclick="openEditModal('NEW')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-xl text-xs font-bold flex items-center gap-2 transition-all mr-2 shadow-lg shadow-blue-900/20">
+                <div class="flex flex-col md:flex-row flex-wrap items-stretch md:items-center gap-3 w-full xl:w-auto">
+                    <button onclick="openEditModal('NEW')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-900/20">
                         <span class="material-symbols-outlined text-sm">person_add</span> NOVO
                     </button>
                     
-                    <div class="h-8 w-[1px] bg-slate-700 opacity-30 mx-1 hidden md:block"></div>
-
-                    <div class="relative">
-                        <select id="colabEmpresaFilter" onchange="renderColaboradores()" class="bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold py-3 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 cursor-pointer min-w-[150px]"></select>
+                    <div class="relative w-full md:w-auto">
+                        <select id="colabEmpresaFilter" onchange="renderColaboradores()" class="w-full md:w-auto bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold py-3 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 cursor-pointer min-w-[150px]"></select>
                         <span class="material-symbols-outlined absolute right-3 top-3 text-slate-500 pointer-events-none text-sm">business</span>
                     </div>
-                    <div class="relative">
-                        <select id="colabTomadorFilter" onchange="renderColaboradores()" class="bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold py-3 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 cursor-pointer min-w-[180px]"></select>
+                    <div class="relative w-full md:w-auto">
+                        <select id="colabTomadorFilter" onchange="renderColaboradores()" class="w-full md:w-auto bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold py-3 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 cursor-pointer min-w-[180px]"></select>
                         <span class="material-symbols-outlined absolute right-3 top-3 text-slate-500 pointer-events-none text-sm">filter_alt</span>
                     </div>
-                    <div class="relative">
-                        <input type="text" id="colabSearch" onkeyup="renderColaboradores()" class="pl-10 pr-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold w-64 focus:ring-2 focus:ring-blue-500 outline-none text-white shadow-inner" placeholder="BUSCAR COLABORADOR...">
+                    <div class="relative w-full md:w-auto">
+                        <input type="text" id="colabSearch" onkeyup="renderColaboradores()" class="w-full md:w-auto pl-10 pr-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold focus:ring-2 focus:ring-blue-500 outline-none text-white shadow-inner" placeholder="BUSCAR COLABORADOR...">
                         <span class="material-symbols-outlined absolute left-3 top-3 text-slate-500 text-sm">search</span>
                     </div>
                 </div>
@@ -422,12 +451,19 @@
     </div>
 
     <div id="editModal" class="modal-overlay">
-        <div class="dark-card modal-content p-8">
+        <div class="dark-card modal-content p-4 md:p-8">
             <div class="flex justify-between items-start mb-6"><h3 class="text-xl font-black text-white" id="modalTitle">Editar Colaborador</h3><button onclick="closeEditModal()" class="text-slate-400 hover:text-white"><span class="material-symbols-outlined">close</span></button></div>
             <div class="space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="text-xs font-bold text-slate-500 uppercase">Nome Completo</label><input type="text" id="editName" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white mt-1 uppercase"></div><div><label class="text-xs font-bold text-slate-500 uppercase">Ação</label><div class="mt-1"><button onclick="addMonthRow()" class="text-xs bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-lg flex items-center gap-1 w-full justify-center"><span class="material-symbols-outlined text-sm">calendar_add_on</span> Adicionar Mês</button></div></div></div>
                 <div id="monthRowsContainer" class="space-y-4 max-h-[60vh] overflow-y-auto custom-scrollbar pr-2"></div>
-                <div class="flex justify-end gap-3 pt-4 border-t border-slate-800"><button onclick="deleteEmployeeFromModal()" id="btnDeleteEmployee" class="bg-rose-900/50 hover:bg-rose-900 text-rose-200 border border-rose-800 px-4 py-2 rounded-xl text-sm font-bold">Excluir Colaborador</button><div class="flex-1"></div><button onclick="closeEditModal()" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-xl text-sm font-bold">Cancelar</button><button onclick="saveEmployee()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-xl text-sm font-bold flex items-center gap-2"><span class="material-symbols-outlined text-sm">save</span> Salvar Alterações</button></div>
+                <div class="flex flex-col md:flex-row justify-end gap-3 pt-4 border-t border-slate-800">
+                    <button onclick="deleteEmployeeFromModal()" id="btnDeleteEmployee" class="bg-rose-900/50 hover:bg-rose-900 text-rose-200 border border-rose-800 px-4 py-2 rounded-xl text-sm font-bold w-full md:w-auto mb-2 md:mb-0">Excluir Colaborador</button>
+                    <div class="flex-1"></div>
+                    <div class="flex gap-2 w-full md:w-auto">
+                        <button onclick="closeEditModal()" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-xl text-sm font-bold w-full md:w-auto">Cancelar</button>
+                        <button onclick="saveEmployee()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-xl text-sm font-bold flex items-center justify-center gap-2 w-full md:w-auto"><span class="material-symbols-outlined text-sm">save</span> Salvar</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -462,12 +498,30 @@
 
     let chartInstances = {};
 
+    function toggleDataMenu() {
+        const menu = document.getElementById('dataMenuDropdown');
+        if (menu.classList.contains('hidden')) {
+            menu.classList.remove('hidden');
+        } else {
+            menu.classList.add('hidden');
+        }
+    }
+
+    // Fechar menu ao clicar fora
+    document.addEventListener('click', function(event) {
+        const menu = document.getElementById('dataMenuDropdown');
+        const button = event.target.closest('button[onclick="toggleDataMenu()"]');
+        const isClickInsideMenu = event.target.closest('#dataMenuDropdown');
+        
+        if (!button && !isClickInsideMenu && !menu.classList.contains('hidden')) {
+            menu.classList.add('hidden');
+        }
+    });
+
     async function init() {
-        // Tenta sempre buscar a base mais recente da planilha ao abrir o site.
-        // Se falhar (offline/CORS/etc.), cai para a base embutida (savedDatabase), se existir.
         let loaded = false;
         try {
-            await importFromGoogleSheets(true); // silent = true (sem alertas/sem alterar botão)
+            await importFromGoogleSheets(true); 
             loaded = true;
         } catch (e) {
             console.warn('Falha ao carregar Google Sheets na inicialização. Usando base local, se existir.', e);
@@ -483,26 +537,17 @@
         checkTheme();
     }
 
-    // --- IMPORTAÇÃO AUTO-DETECTADA ---
     async function importFromGoogleSheets(silent=false) {
         const btn = document.getElementById('btnGoogleSheet');
         const originalText = (btn && btn.innerHTML) ? btn.innerHTML : '';
-        // Fonte de dados (recomendado: URL do seu Google Apps Script Web App).
-        // Você pode trocar este valor sem alterar nada do visual/estrutura do painel.
-        // Exemplo (Apps Script): https://script.google.com/macros/s/XXXX/exec
-        // Exemplo (Sheets publicado): https://docs.google.com/spreadsheets/d/e/.../pub?output=csv
         const DATA_SOURCE_BASE = (window.DATA_SOURCE_URL && String(window.DATA_SOURCE_URL).trim())
             ? String(window.DATA_SOURCE_URL).trim()
             : 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSFttYGzkgH-6VxHYrTAz7ChIRdk3j2ZnP1GpF7OVzX4HJ-D9bfEgiorhJIasGHBbF0CQh6MXEgKEpx/pub?output=csv';
 
-        // Anti-cache para sempre puxar o mais recente
         const csvUrl = DATA_SOURCE_BASE.includes('?')
             ? `${DATA_SOURCE_BASE}&t=${Date.now()}`
             : `${DATA_SOURCE_BASE}?t=${Date.now()}`;
 
-        // Estratégia de fetch:
-        // 1) tenta direto (funciona bem com Apps Script)
-        // 2) se falhar por CORS (com Sheets), tenta via proxy como fallback
         const directUrl = csvUrl;
         const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(csvUrl)}`;
 
@@ -527,21 +572,17 @@
 
             if (!rawText || rawText.length < 10) throw new Error("Arquivo vazio");
 
-            // Força o SheetJS a ler como texto puro
             const workbook = XLSX.read(rawText, { type: 'string', raw: true });
             const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
             const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
 
-            // DETECÇÃO DE CABEÇALHO (Procura onde está a linha com 'Nome' e 'Mês')
             let headerRowIndex = -1;
             let colIndexName = -1;
             let colIndexMes = -1;
 
-            // Varre as primeiras 10 linhas procurando cabeçalho
             for(let r=0; r<Math.min(jsonData.length, 10); r++) {
                 const row = jsonData[r];
                 if(!row) continue;
-                // Procura coluna com "NOME" ou "COLABORADOR"
                 const idxName = row.findIndex(cell => cell && String(cell).toUpperCase().includes('NOME'));
                 const idxMes = row.findIndex(cell => cell && (String(cell).toUpperCase().includes('MÊS') || String(cell).toUpperCase().includes('MES')));
                 
@@ -553,7 +594,6 @@
                 }
             }
 
-            // Se não achou cabeçalho, tenta usar índices fixos (0=Mês, 2=Nome)
             if(headerRowIndex === -1) {
                 headerRowIndex = 0;
                 colIndexMes = 0;
@@ -562,8 +602,6 @@
             }
 
             let novos = 0, atualizados = 0;
-
-            // IMPORTAÇÃO COMPLETA: monta uma nova base a partir do Sheets e substitui a base atual ao final.
             const newDatabase = [];
 
             const cleanNum = (val) => {
@@ -579,15 +617,14 @@
                 const row = jsonData[i];
                 if(!row) continue;
 
-                // Usa os índices detectados dinamicamente
                 const nome = cleanStr(row[colIndexName]).toUpperCase();
                 const mes = cleanStr(row[colIndexMes]);
 
-                if(nome.length < 3) continue; // Nome muito curto ou vazio
+                if(nome.length < 3) continue;
 
                 const newRecord = {
                     mes: mes,
-                    empresa: cleanStr(row[1] || "G Lux"), // Empresa costuma ser col 1
+                    empresa: cleanStr(row[1] || "G Lux"),
                     name: nome,
                     tomador: cleanStr(row[3]).toUpperCase(),
                     censo_q: cleanNum(row[4]),
@@ -599,7 +636,6 @@
                     deslocamento: cleanNum(row[10])
                 };
 
-                // Chave composta: (mês + nome + tomador). Isso permite que o mesmo colaborador tenha produção em mais de um tomador no mesmo mês.
                 const existingIdx = newDatabase.findIndex(d =>
                     d.mes === newRecord.mes &&
                     d.name === newRecord.name &&
@@ -607,7 +643,6 @@
                 );
 
                 if(existingIdx >= 0) {
-                    // Se vierem linhas repetidas para o mesmo (mês,nome,tomador), acumulamos os valores (não sobrescreve).
                     const ex = newDatabase.splice(existingIdx, 1)[0];
                     ex.empresa = newRecord.empresa || ex.empresa;
                     ex.censo_q = (ex.censo_q || 0) + (newRecord.censo_q || 0);
@@ -617,7 +652,6 @@
                     ex.despesa_total = (ex.despesa_total || 0) + (newRecord.despesa_total || 0);
                     ex.premiacao     = (ex.premiacao     || 0) + (newRecord.premiacao     || 0);
                     ex.deslocamento  = (ex.deslocamento  || 0) + (newRecord.deslocamento  || 0);
-                    // Move para o final para refletir a última atualização (tomador atual = última linha do Sheets)
                     newDatabase.push(ex);
                     atualizados++;
                 } else {
@@ -627,10 +661,8 @@
             }
 
             if(novos === 0 && atualizados === 0) {
-                // MODO DEBUG: Se não achou nada, mostra o que veio na linha 1 e 2
                 alert(`⚠️ Atenção: O arquivo foi baixado mas nenhum dado foi identificado.\n\nPrimeira linha do arquivo:\n${JSON.stringify(jsonData[0] || "Vazia")}\n\nVerifique se as colunas 'Mês' e 'Nome' existem.`);
             } else {
-                // Substitui a base inteira pela importada do Google Sheets (evita duplicação com dados embutidos no HTML)
                 database = newDatabase;
                 populateFilters(); populateColabFilters(); populateTrendFilters(); populateFatFilters(); filterData();
                 if(document.getElementById('tab-colaboradores').classList.contains('active')) renderColaboradores();
@@ -646,7 +678,6 @@
         }
     }
 
-    // --- UTILS & CORE ---
     function getCompanyBadgeClass(empresa) { const n = empresa.toUpperCase(); if (n.includes('G LUX') || n.includes('GLUX')) return 'bg-emerald-900/40 text-emerald-400 border border-emerald-900/50'; return 'bg-slate-700/50 text-slate-300 border border-slate-600'; }
     function getTomadorBadgeClass(tomador) { if (tomador === 'DESLIGADO') return 'bg-rose-900/40 text-rose-400 border border-rose-900/50'; if (tomador === 'EM CASA') return 'bg-amber-900/20 text-amber-500 border border-amber-900/30'; return 'bg-blue-900/30 text-blue-400 border border-blue-900/40'; }
     function sortData(column) { if (currentSort.column === column) currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc'; else { currentSort.column = column; currentSort.direction = 'asc'; } document.querySelectorAll('.sort-icon').forEach(icon => { icon.classList.remove('active'); icon.innerText = 'unfold_more'; }); const activeIcon = document.getElementById(`sort-${column}`); if(activeIcon) { activeIcon.classList.add('active'); activeIcon.innerText = currentSort.direction === 'asc' ? 'expand_less' : 'expand_more'; } filterData(); }
@@ -1175,13 +1206,43 @@
         }
     }
 
-    function togglePrivacy() { isPrivacyMode = !isPrivacyMode; document.getElementById('privacy-icon').innerText = isPrivacyMode ? "visibility_off" : "visibility"; applyPrivacy(); }
+    function togglePrivacy() { isPrivacyMode = !isPrivacyMode; 
+        document.getElementById('privacy-icon').innerText = isPrivacyMode ? "visibility_off" : "visibility"; 
+        document.getElementById('privacy-icon-mobile').innerText = isPrivacyMode ? "visibility_off" : "visibility"; 
+        applyPrivacy(); 
+    }
     function applyPrivacy() { document.querySelectorAll('.sensitive-data').forEach(el => { if (isPrivacyMode) el.classList.add('privacy-blur'); else el.classList.remove('privacy-blur'); }); }
-    function toggleTheme() { isLightMode = !isLightMode; document.body.classList.toggle('light-mode', isLightMode); document.getElementById('theme-icon').innerText = isLightMode ? "light_mode" : "dark_mode"; checkTheme(); }
+    function toggleTheme() { isLightMode = !isLightMode; document.body.classList.toggle('light-mode', isLightMode); 
+        document.getElementById('theme-icon').innerText = isLightMode ? "light_mode" : "dark_mode"; 
+        document.getElementById('theme-icon-mobile').innerText = isLightMode ? "light_mode" : "dark_mode"; 
+        checkTheme(); 
+    }
     function checkTheme() { if (document.body.classList.contains('light-mode')) isLightMode = true; }
     let currentOpenUser = null;
-    function toggleSidePanel(name) { const panel = document.getElementById('resumoPanel'); const tableContainer = document.getElementById('mainTableContainer'); if (currentOpenUser === name && !panel.classList.contains('hidden')) { closeSidePanel(); return; } currentOpenUser = name; panel.classList.remove('hidden'); tableContainer.classList.remove('xl:col-span-3'); tableContainer.classList.add('xl:col-span-2'); updateSidePanelContent(name); }
-    function closeSidePanel() { const panel = document.getElementById('resumoPanel'); const tableContainer = document.getElementById('mainTableContainer'); panel.classList.add('hidden'); tableContainer.classList.remove('xl:col-span-2'); tableContainer.classList.add('xl:col-span-3'); currentOpenUser = null; }
+    function toggleSidePanel(name) { 
+        const panel = document.getElementById('resumoPanel'); 
+        const tableContainer = document.getElementById('mainTableContainer'); 
+        if (currentOpenUser === name && !panel.classList.contains('hidden')) { 
+            closeSidePanel(); 
+            return; 
+        } 
+        currentOpenUser = name; 
+        panel.classList.remove('hidden'); 
+        
+        // Mantém a lógica desktop
+        tableContainer.classList.remove('xl:col-span-3'); 
+        tableContainer.classList.add('xl:col-span-2'); 
+        
+        updateSidePanelContent(name); 
+    }
+    function closeSidePanel() { 
+        const panel = document.getElementById('resumoPanel'); 
+        const tableContainer = document.getElementById('mainTableContainer'); 
+        panel.classList.add('hidden'); 
+        tableContainer.classList.remove('xl:col-span-2'); 
+        tableContainer.classList.add('xl:col-span-3'); 
+        currentOpenUser = null; 
+    }
     function updateSidePanelContent(name) { const pD = database.filter(r => r.name === name); if(!pD.length) return; const mf = document.getElementById('monthFilter').value; const fH = mf === "ALL" ? pD : pD.filter(r => r.mes === mf); const lR = fH[fH.length - 1] || pD[0]; document.getElementById('resumoName').innerText = lR.name; document.getElementById('resumoEmpresaTag').innerText = lR.empresa; document.getElementById('resumoTomadorTag').innerText = lR.tomador; document.getElementById('resumoEmpresaTag').className = `text-[10px] font-bold uppercase px-3 py-1 rounded-full ${getCompanyBadgeClass(lR.empresa)}`; document.getElementById('resumoTomadorTag').className = `text-[10px] font-bold uppercase px-3 py-1 rounded-full ${getTomadorBadgeClass(lR.tomador)}`; const tP = fH.reduce((acc, r) => acc + (r.censo_v || 0) + (r.fisc_v || 0), 0); const tD = fH.reduce((acc, r) => acc + (r.despesa_total || 0), 0); const sal = tP - tD; document.getElementById('resumoValueFinal').innerText = fmt.format(sal); document.getElementById('resumoValueFinal').className = `text-4xl font-black sensitive-data ${sal < 0 ? 'text-rose-500' : 'text-emerald-500'}`; document.getElementById('resumoNegativeNotice').innerText = sal < 0 ? "Saldo devedor." : ""; const c = document.getElementById('resumoContent'); c.innerHTML = ''; fH.forEach(m => { const pt = (m.censo_v || 0) + (m.fisc_v || 0); const dt = (m.despesa_total || 0); const card = document.createElement('div'); card.className = "bg-slate-800/50 border border-slate-700 rounded-[2rem] shadow-sm p-6 space-y-4 hover:bg-slate-800 transition-all"; card.innerHTML = ` <div class="flex justify-between items-center border-b pb-3 border-slate-700"> <span class="text-xs font-black text-blue-500 uppercase tracking-widest">${m.mes}</span> <span class="text-[9px] font-bold text-slate-500 bg-slate-900 px-2 py-1 rounded border border-slate-700">REGISTRO</span> </div> <div class="grid grid-cols-2 gap-4 text-[11px]"> <div class="space-y-2"> <p class="text-[9px] font-black uppercase text-slate-500 tracking-tighter">Produção</p> <div class="flex justify-between text-slate-300"><span>Censo:</span> <strong>${fmt.format(m.censo_v)} <span class="text-xs text-slate-500 font-normal">(${m.censo_q || 0} pts)</span></strong></div> <div class="flex justify-between text-slate-300"><span>Fisc:</span> <strong>${fmt.format(m.fisc_v)} <span class="text-xs text-slate-500 font-normal">(${m.fisc_q || 0} pts)</span></strong></div> </div> <div class="space-y-2 border-l pl-4 border-slate-700"> <p class="text-[9px] font-black uppercase text-slate-500 tracking-tighter">Detalhamento Despesas</p> <div class="flex justify-between text-slate-300"><span>Premiação:</span> <span class="text-blue-400 font-bold">${fmt.format(m.premiacao)}</span></div> <div class="flex justify-between text-slate-300"><span>Desloc/Adt:</span> <span class="text-amber-400 font-bold">${fmt.format(m.deslocamento)}</span></div> </div> </div> <div class="grid grid-cols-2 gap-3 pt-2"> <div class="bg-slate-900 p-3 rounded-2xl border border-slate-700 text-center"> <p class="text-[9px] font-black uppercase text-slate-500 mb-1">Total Produção</p> <p class="text-sm font-black text-slate-100 sensitive-data">${fmt.format(pt)}</p> </div> <div class="bg-rose-950/20 p-3 rounded-2xl border border-rose-900/30 text-center"> <p class="text-[9px] font-black uppercase text-rose-500 mb-1">Total Saídas</p> <p class="text-sm font-black text-rose-400 sensitive-data">${fmt.format(dt)}</p> </div> </div> `; c.appendChild(card); }); applyPrivacy(); }
 
     function downloadTemplate() { const wb = XLSX.utils.book_new(); const headers = ["Mês", "Empresa", "Nome", "Tomador", "Qtd Censo", "Produção Censo (R$)", "Qtd Fisc", "Produção Fiscalização (R$)", "Despesa Total (R$)", "Premiação (R$)", "Deslocamento (R$)"]; const exampleData = [ ["Dez/25", "G Lux", "Fulano de Tal", "EQUATORIAL PI", 1000, 1500.50, 0, 0, 800, 100, 700], ["Jan/26", "G Lux", "Beltrano", "EM CASA", 0, 0, 500, 3200.00, 1200, 0, 1200] ]; const ws = XLSX.utils.aoa_to_sheet([headers, ...exampleData]); XLSX.utils.book_append_sheet(wb, ws, "DADOS_MENSAL"); XLSX.writeFile(wb, "Modelo_Importacao_Mensal_JVM_Pontos.xlsx"); }
@@ -1189,11 +1250,9 @@
     function downloadDashboard() { const dataScript = `\n<script id="persisted-data">window.savedDatabase = ${JSON.stringify(database)};<\/script>`; let htmlContent = document.documentElement.outerHTML; htmlContent = htmlContent.replace(/<script id="persisted-data">.*?<\/script>/s, ''); const insertPosition = htmlContent.indexOf('</body>'); htmlContent = htmlContent.slice(0, insertPosition) + dataScript + htmlContent.slice(insertPosition); const blob = new Blob([htmlContent], {type: 'text/html'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Dashboard_JVM_2026_Completo.html'; a.click(); }
     function exportExcel() { const wb = XLSX.utils.book_new(); const rows = [["Mês", "Empresa", "Nome", "Tomador", "Qtd Censo", "Produção Censo (R$)", "Qtd Fisc", "Produção Fiscalização (R$)", "Despesa Total (R$)", "Premiação (R$)", "Deslocamento (R$)"]]; database.forEach(d => { rows.push([d.mes, d.empresa, d.name, d.tomador, d.censo_q, d.censo_v, d.fisc_q, d.fisc_v, d.despesa_total, d.premiacao, d.deslocamento]); }); const ws = XLSX.utils.aoa_to_sheet(rows); XLSX.utils.book_append_sheet(wb, ws, "Base_Consolidada"); XLSX.writeFile(wb, "JVM_Base_Completa_2026.xlsx"); }
 
-    /* ===== LÓGICA EXCLUSIVA DA ABA FATURAMENTO (ATUALIZADA) ===== */
     const PRICE_CENSO = 8.34;
     const PRICE_FISC = 20.20;
     
-    // Variável para controle de ordenação na aba Faturamento
     let currentFatSort = { column: 'rev_total', direction: 'desc' };
 
     function populateFatFilters() {
@@ -1224,7 +1283,7 @@
         tomadores.forEach(v => tomSel.innerHTML += `<option value="${v}">Tomador: ${v}</option>`);
         tomSel.value = tomadores.includes(current) ? current : "TODOS";
         
-        updateFatColabFilter(); // Cascata para o colaborador
+        updateFatColabFilter();
     }
     
     function updateFatColabFilter() {
@@ -1254,11 +1313,10 @@
             currentFatSort.direction = currentFatSort.direction === 'asc' ? 'desc' : 'asc';
         } else {
             currentFatSort.column = column;
-            currentFatSort.direction = 'desc'; // Default desc para valores
+            currentFatSort.direction = 'desc';
             if (column === 'name') currentFatSort.direction = 'asc';
         }
         
-        // Atualiza ícones visuais
         document.querySelectorAll('#section-faturamento .sort-icon').forEach(icon => {
             icon.classList.remove('active');
             icon.innerText = 'unfold_more';
@@ -1279,13 +1337,11 @@
         const colF = document.getElementById('fatColabFilter').value;
         const monthsS2 = ["Jun/26", "Jul/26", "Ago/26", "Set/26", "Out/26", "Nov/26"];
 
-        // 1. Filtrar e Agrupar Dados
         let agg = {};
         let totalCenso = 0;
         let totalFisc = 0;
 
         database.forEach(row => {
-            // Filtros
             if (monthF === "2SEM26") { if (!monthsS2.includes(row.mes)) return; }
             else if (monthF !== "ALL" && row.mes !== monthF) return;
             
@@ -1293,7 +1349,6 @@
             if (tomF !== "TODOS" && row.tomador !== tomF) return;
             if (colF && colF !== "TODOS" && row.name !== colF) return;
 
-            // Agregação
             if (!agg[row.name]) {
                 agg[row.name] = { 
                     name: row.name, 
@@ -1310,7 +1365,6 @@
 
         let list = Object.values(agg);
 
-        // 2. Calcular Totais Monetários
         list.forEach(item => {
             item.rev_censo = item.qtd_censo * PRICE_CENSO;
             item.rev_fisc = item.qtd_fisc * PRICE_FISC;
@@ -1322,12 +1376,10 @@
 
         const totalRevenue = totalCenso + totalFisc;
 
-        // 3. Atualizar KPIs
         document.getElementById('kpi-fat-censo').innerText = fmt.format(totalCenso);
         document.getElementById('kpi-fat-fisc').innerText = fmt.format(totalFisc);
         document.getElementById('kpi-fat-total').innerText = fmt.format(totalRevenue);
 
-        // 4. Ordenação
         const { column, direction } = currentFatSort;
         const m = direction === 'asc' ? 1 : -1;
         list.sort((a, b) => {
@@ -1337,7 +1389,6 @@
             return (valA - valB) * m;
         });
 
-        // 5. Renderizar Tabela
         const tbody = document.getElementById('fatTableBody');
         tbody.innerHTML = '';
         if(list.length === 0) {
@@ -1363,13 +1414,10 @@
         }
         applyPrivacy();
 
-        // 6. Renderizar Gráficos
         renderFatCharts(list);
     }
 
     function renderFatCharts(data) {
-        // --- Gráfico 1: Top 10 Ranking de Faturamento ---
-        // Ordena por receita total decrescente para o gráfico (independente da tabela)
         const rankingData = [...data].sort((a,b) => b.rev_total - a.rev_total).slice(0, 10);
         const labels = rankingData.map(d => d.name.split(' ')[0]); 
         const values = rankingData.map(d => d.rev_total);
@@ -1390,7 +1438,7 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                indexAxis: 'y', // Barra Horizontal
+                indexAxis: 'y', 
                 plugins: { legend: { display: false } },
                 scales: {
                     y: { grid: { display: false }, ticks: { color: '#94a3b8' } },
@@ -1399,7 +1447,6 @@
             }
         });
 
-        // --- Gráfico 2: Share por Empresa ---
         const shareMap = {};
         data.forEach(d => {
             if(!shareMap[d.empresa]) shareMap[d.empresa] = 0;
@@ -1429,7 +1476,6 @@
             }
         });
 
-        // --- Gráfico 3: Mix de Faturamento (Tomador) ---
         const mixMap = {};
         data.forEach(d => {
             if(!mixMap[d.tomador]) mixMap[d.tomador] = { censo: 0, fisc: 0 };

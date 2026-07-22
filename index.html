@@ -139,7 +139,7 @@
                     <button class="w-full px-4 py-3 text-left text-xs font-bold text-slate-300 hover:bg-slate-800 flex items-center gap-2" onclick="document.getElementById('importInput').click(); toggleDataMenu()">
                         <span class="material-symbols-outlined text-sm">file_open</span> Importar Excel Manual
                     </button>
-                    <button class="w-full px-4 py-3 text-left text-xs font-bold text-slate-300 hover:bg-slate-800 flex items-center gap-2 border-t border-slate-800" onclick="exportExcel(); toggleDataMenu()">
+                    <button class="w-full px-4 py-3 text-left text-xs font-bold text-slate-300 hover:bg-slate-800 flex items-center gap-2" onclick="exportExcel(); toggleDataMenu()">
                         <span class="material-symbols-outlined text-sm">table_view</span> Exportar Excel (.xlsx)
                     </button>
                     <button class="w-full px-4 py-3 text-left text-xs font-bold text-slate-300 hover:bg-slate-800 flex items-center gap-2" onclick="downloadDashboard(); toggleDataMenu()">
@@ -157,22 +157,7 @@
         <h2 class="text-xl md:text-2xl font-black italic tracking-tight" style="color: var(--text-main)">Fechamento <span class="text-blue-500">2026</span></h2>
         <div class="flex gap-4 w-full md:w-auto">
              <div class="relative w-full md:w-auto">
-                <select id="monthFilter" onchange="filterData()" class="w-full md:w-auto bg-slate-800 border border-slate-700 rounded-xl text-sm py-2.5 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 shadow-lg cursor-pointer font-bold">
-                    <option value="ALL">1º Semestre 2026 (Dez - Mai)</option>
-                    <option value="2SEM26">2º Semestre 2026 (Jun - Nov)</option>
-                    <option value="Dez/25">Dez/25</option>
-                    <option value="Jan/26">Jan/26</option>
-                    <option value="Fev/26">Fev/26</option>
-                    <option value="Mar/26">Mar/26</option>
-                    <option value="Abr/26">Abr/26</option>
-                    <option value="Mai/26">Mai/26</option>
-                    <option value="Jun/26">Jun/26</option>
-                    <option value="Jul/26">Jul/26</option>
-                    <option value="Ago/26">Ago/26</option>
-                    <option value="Set/26">Set/26</option>
-                    <option value="Out/26">Out/26</option>
-                    <option value="Nov/26">Nov/26</option>
-                </select>
+                <select id="monthFilter" onchange="filterData()" class="w-full md:w-auto bg-slate-800 border border-slate-700 rounded-xl text-sm py-2.5 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 shadow-lg cursor-pointer font-bold"></select>
                 <span class="material-symbols-outlined absolute right-3 top-2.5 text-slate-500 pointer-events-none text-sm">calendar_month</span>
             </div>
         </div>
@@ -282,22 +267,7 @@
             </div>
             <div class="flex flex-col md:flex-row flex-wrap items-stretch md:items-center gap-3 w-full xl:w-auto">
                 <div class="relative w-full md:w-auto">
-                    <select id="fatMonthFilter" onchange="renderFaturamento()" class="w-full md:w-auto bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold py-3 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-emerald-500 cursor-pointer min-w-[150px]">
-                        <option value="ALL">Período: 1º Semestre</option>
-                        <option value="2SEM26">Período: 2º Semestre</option>
-                        <option value="Dez/25">Dez/25</option>
-                        <option value="Jan/26">Jan/26</option>
-                        <option value="Fev/26">Fev/26</option>
-                        <option value="Mar/26">Mar/26</option>
-                        <option value="Abr/26">Abr/26</option>
-                        <option value="Mai/26">Mai/26</option>
-                        <option value="Jun/26">Jun/26</option>
-                        <option value="Jul/26">Jul/26</option>
-                        <option value="Ago/26">Ago/26</option>
-                        <option value="Set/26">Set/26</option>
-                        <option value="Out/26">Out/26</option>
-                        <option value="Nov/26">Nov/26</option>
-                    </select>
+                    <select id="fatMonthFilter" onchange="renderFaturamento()" class="w-full md:w-auto bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold py-3 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-emerald-500 cursor-pointer min-w-[150px]"></select>
                     <span class="material-symbols-outlined absolute right-3 top-3 text-emerald-500 pointer-events-none text-sm">calendar_today</span>
                 </div>
                 <div class="relative w-full md:w-auto">
@@ -501,26 +471,139 @@
     let isLightMode = false;
     let currentSort = { column: 'name', direction: 'asc' };
 
-    let database = [
-        { mes: "Dez/25", empresa: "G Lux", name: "JEFERSON ALVES RIBEIRO", tomador: "EQUATORIAL MA", censo_q: 0, censo_v: 0, fisc_q: 5601, fisc_v: 14002.5, despesa_total: 2275, premiacao: 260, deslocamento: 2015 },
-        { mes: "Dez/25", empresa: "G Lux", name: "LEOMAR HENRIQUE DA SILVA", tomador: "EQUATORIAL PI", censo_q: 2133, censo_v: 2772.9, fisc_q: 0, fisc_v: 0, despesa_total: 982.5, premiacao: 0, deslocamento: 982.5 },
-        { mes: "Dez/25", empresa: "G Lux", name: "LISARBE LIMA DE SOUZA PASSOS", tomador: "EQUATORIAL PI", censo_q: 2417, censo_v: 3142.1, fisc_q: 0, fisc_v: 0, despesa_total: 1900, premiacao: 0, deslocamento: 1900 },
-        { mes: "Dez/25", empresa: "G Lux", name: "MANOEL NETO MAIA SILVA", tomador: "EQUATORIAL AL", censo_q: 2876, censo_v: 3738.8, fisc_q: 0, fisc_v: 0, despesa_total: 1861, premiacao: 0, deslocamento: 1861 },
-        { mes: "Dez/25", empresa: "G Lux", name: "NEITON CARLOS DA SILVA OLIVEIRA", tomador: "EQUATORIAL PI", censo_q: 0, censo_v: 0, fisc_q: 4800, fisc_v: 12000, despesa_total: 1980, premiacao: 0, deslocamento: 1980 },
-        { mes: "Dez/25", empresa: "G Lux", name: "SAMUEL DA SILVA BRITO", tomador: "EQUATORIAL MA", censo_q: 0, censo_v: 0, fisc_q: 4001, fisc_v: 10002.5, despesa_total: 2240, premiacao: 0, deslocamento: 2240 },
-        { mes: "Dez/25", empresa: "G Lux", name: "WAGNER TAIRONE DE SANTANA SANTOS", tomador: "EQUATORIAL AL", censo_q: 2144, censo_v: 2787.2, fisc_q: 0, fisc_v: 0, despesa_total: 1945, premiacao: 0, deslocamento: 1945 },
-        { mes: "Dez/25", empresa: "G Lux", name: "WODSON AMORIM LEITE", tomador: "EQUATORIAL AL", censo_q: 3530, censo_v: 4589, fisc_q: 0, fisc_v: 0, despesa_total: 2895, premiacao: 1000, deslocamento: 1895 },
-        { mes: "Dez/25", empresa: "JVM", name: "ANDERSON ANACLETO FRANÇA DE JESUS", tomador: "EQUATORIAL GO", censo_q: 0, censo_v: 0, fisc_q: 4235, fisc_v: 11858, despesa_total: 2030, premiacao: 0, deslocamento: 2030},
-        { mes: "Dez/25", empresa: "JVM", name: "ELIEL SANTOS DE JESUS", tomador: "ENERGISA PB", censo_q: 2649, censo_v: 3443.7, fisc_q : 0, fisc_v: 0, despesa_total: 1915, premiacao: 0, deslocamento: 1915},
-        { mes: "Dez/25", empresa: "JVM", name: "GETULIO BATISTA DE OLIVEIRA JUNIOR", tomador: "ENERGISA PB", censo_q: 2773, censo_v: 3604.9, fisc_q: 608, fisc_v: 1702.4, despesa_total: 6147, premiacao: 0, deslocamento: 6147},
-        { mes: "Dez/25", empresa: "JVM", name: "ISAEL FERREIRA BAIA", tomador: "MACAPÁ", censo_q: 0, censo_v: 0, fisc_q: 0, fisc_v: 0, despesa_total: 735.6, premiacao: 735.6, deslocamento:0},
-        { mes: "Dez/25", empresa: "JVM", name: "JONATHAS FREITAS DA BOA MORTE", tomador: "EQUATORIAL GO", censo_q: 0, censo_v: 0, fisc_q: 4459, fisc_v: 12485.2, despesa_total: 2030, premiacao: 0, deslocamento: 2030},
-        { mes: "Dez/25", empresa: "JVM", name: "JOSENILTON ALVES DA SILVA", tomador: "SUPERVISOR", censo_q: 0, censo_v: 0, fisc_q: 0, fisc_v: 0, despesa_total: 0, premiacao: 0, deslocamento: 0},
-        { mes: "Dez/25", empresa: "JVM", name: "MARCELO ALMEIDA DOS SANTOS", tomador:"FISCALIZAÇÃO RS", censo_q: 0, censo_v: 0, fisc_q: 1819, fisc_v: 5093.2, despesa_total: 43075.09, premiacao: 41045, deslocamento: 2030},
-        { mes: "Dez/25", empresa: "JVM", name: "MIQUEIAS SANTOS PINHO", tomador:"ENERGISA PB", censo_q: 1551, censo_v: 2016.3, fisc_q: 0, fisc_v: 0, despesa_total: 1907.5, premiacao: 0,deslocamento: 1907.5},
-        { mes: "Dez/25", empresa: "JVM", name: "RODRIGO ARAUJO BARRIGA", tomador:"MACAPÁ", censo_q: 0, censo_v: 0, fisc_q: 0, fisc_v: 0, despesa_total: 940.59, premiacao: 735.6, deslocamento: 204.99},
-        { mes: "Dez/25", empresa: "JVM", name: "UNIEVERTON CARLOS DA SILVA", tomador:"ENERGISA PB", censo_q: 1874, censo_v: 2436.2, fisc_q: 0, fisc_v: 0, despesa_total: 1907.5, premiacao: 0, deslocamento: 1907.5}
-    ];
+    // ==========================================================================
+    // MOTOR DE PERÍODOS (mês/semestre) - dinâmico e independente do ano
+    // ==========================================================================
+    const MESES_ABREV = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+
+    // Converte "Dez/25" -> {idx: 11, ano: 2025}
+    function parseMesAno(mesStr) {
+        if (!mesStr || typeof mesStr !== 'string') return null;
+        const partes = mesStr.split('/');
+        if (partes.length !== 2) return null;
+        const abrev = partes[0].trim();
+        const idx = MESES_ABREV.findIndex(m => m.toLowerCase() === abrev.toLowerCase());
+        const yy = parseInt(partes[1].trim(), 10);
+        if (idx === -1 || isNaN(yy)) return null;
+        return { idx, ano: 2000 + yy };
+    }
+
+    // Ordena cronologicamente strings tipo "Dez/25", "Jan/26"...
+    function compararMeses(a, b) {
+        const pa = parseMesAno(a), pb = parseMesAno(b);
+        if (!pa || !pb) return 0;
+        return (pa.ano * 12 + pa.idx) - (pb.ano * 12 + pb.idx);
+    }
+
+    // Regra de negócio: 1º Semestre = Dez do ano anterior até Mai do ano corrente.
+    //                    2º Semestre = Jun até Nov do ano corrente.
+    // Retorna a chave do semestre ao qual o mês pertence, ex: "1SEM26", "2SEM26"
+    function getSemestreKey(mesStr) {
+        const p = parseMesAno(mesStr);
+        if (!p) return null;
+        if (p.idx === 11) return `1SEM${String((p.ano + 1) % 100).padStart(2, '0')}`; // Dezembro entra no 1º sem. do ano seguinte
+        if (p.idx <= 4) return `1SEM${String(p.ano % 100).padStart(2, '0')}`; // Jan-Mai
+        return `2SEM${String(p.ano % 100).padStart(2, '0')}`; // Jun-Nov
+    }
+
+    // Dado uma chave de semestre ("1SEM26"), retorna todos os meses que o compõem
+    function getMesesDoSemestre(semKey) {
+        const sem = semKey[0];
+        const yy = parseInt(semKey.slice(4), 10);
+        const meses = [];
+        if (sem === '1') {
+            const anoAnteriorYY = (yy - 1 + 100) % 100;
+            meses.push(`Dez/${String(anoAnteriorYY).padStart(2, '0')}`);
+            for (let i = 0; i < 5; i++) meses.push(`${MESES_ABREV[i]}/${String(yy).padStart(2, '0')}`);
+        } else {
+            for (let i = 5; i < 11; i++) meses.push(`${MESES_ABREV[i]}/${String(yy).padStart(2, '0')}`);
+        }
+        return meses;
+    }
+
+    function isSemestreKey(valor) {
+        return /^[12]SEM\d{2}$/.test(String(valor || ''));
+    }
+
+    // Filtra um array de linhas do banco por um valor de período (ALL | "1SEM26" | "2SEM26" | "Jan/26")
+    function filtrarPorPeriodo(rows, periodo) {
+        if (!periodo || periodo === "ALL") return rows;
+        if (isSemestreKey(periodo)) {
+            const meses = new Set(getMesesDoSemestre(periodo));
+            return rows.filter(r => meses.has(r.mes));
+        }
+        return rows.filter(r => r.mes === periodo);
+    }
+
+    // Monta o HTML de <option>/<optgroup> para um filtro de período completo,
+    // agrupando visualmente em: Todos / Semestres / Meses por ano.
+    function montarOpcoesPeriodo(mesesDisponiveis) {
+        const mesesValidos = [...new Set(mesesDisponiveis)].filter(m => parseMesAno(m) !== null);
+        const mesesOrdenados = mesesValidos.sort(compararMeses);
+
+        const semestresSet = new Set();
+        mesesOrdenados.forEach(m => { const s = getSemestreKey(m); if (s) semestresSet.add(s); });
+        const semestresOrdenados = [...semestresSet].sort((a, b) => {
+            const infoA = { sem: parseInt(a[0], 10), ano: parseInt(a.slice(4), 10) };
+            const infoB = { sem: parseInt(b[0], 10), ano: parseInt(b.slice(4), 10) };
+            return (infoA.ano * 10 + infoA.sem) - (infoB.ano * 10 + infoB.sem);
+        });
+
+        let html = `<option value="ALL">📊 Todos os Períodos</option>`;
+
+        if (semestresOrdenados.length) {
+            html += `<optgroup label="— Semestres —">`;
+            semestresOrdenados.forEach(sk => {
+                const meses = getMesesDoSemestre(sk);
+                const ano20 = `20${sk.slice(4)}`;
+                const label = sk[0] === '1'
+                    ? `1º Semestre ${ano20} (${meses[0]} - ${meses[meses.length - 1]})`
+                    : `2º Semestre ${ano20} (${meses[0]} - ${meses[meses.length - 1]})`;
+                html += `<option value="${sk}">${label}</option>`;
+            });
+            html += `</optgroup>`;
+        }
+
+        const porAno = {};
+        mesesOrdenados.forEach(m => {
+            const p = parseMesAno(m);
+            if (!p) return;
+            if (!porAno[p.ano]) porAno[p.ano] = [];
+            porAno[p.ano].push(m);
+        });
+        Object.keys(porAno).sort((a, b) => a - b).forEach(ano => {
+            html += `<optgroup label="— Meses ${ano} —">`;
+            porAno[ano].forEach(m => { html += `<option value="${m}">${m}</option>`; });
+            html += `</optgroup>`;
+        });
+
+        return html;
+    }
+
+    // Popula os filtros de período (Visão Geral, Faturamento e Estatísticas)
+    // com base nos meses que realmente existem na base de dados.
+    function populatePeriodFilters() {
+        const mesesUnicos = [...new Set(database.map(r => r.mes))].filter(Boolean);
+        const optionsHtml = montarOpcoesPeriodo(mesesUnicos);
+
+        [
+            document.getElementById('monthFilter'),
+            document.getElementById('fatMonthFilter'),
+            document.getElementById('trendPeriodFilter')
+        ].forEach(sel => {
+            if (!sel) return;
+            const valorAtual = sel.value;
+            sel.innerHTML = optionsHtml;
+            const valoresDisponiveis = Array.from(sel.options).map(o => o.value);
+            sel.value = valoresDisponiveis.includes(valorAtual) ? valorAtual : "ALL";
+        });
+    }
+    // ==========================================================================
+
+    // A base SEMPRE é alimentada pela sincronização com o Google Sheets (importFromGoogleSheets),
+    // chamada automaticamente em init(). Não há mais dados fixos/antigos aqui — isso evita que
+    // qualquer colaborador ou mês de exemplo apareça caso a planilha não tenha sido sincronizada ainda.
+    let database = [];
 
     let chartInstances = {};
 
@@ -578,6 +661,7 @@
         populateColabFilters();
         populateTrendFilters();
         populateFatFilters(); 
+        populatePeriodFilters();
         filterData();
         checkTheme();
     }
@@ -585,16 +669,28 @@
     async function importFromGoogleSheets(silent=false) {
         const btn = document.getElementById('btnGoogleSheet');
         const originalText = (btn && btn.innerHTML) ? btn.innerHTML : '';
+        // ID da planilha (extraído do link "Google Planilhas" do menu de links do dashboard)
+        const SPREADSHEET_ID = '1-RGHonXBGQqHQ2Reh4wxe_Nb4UCnbdTIeN9FKDh783w';
+        // Endpoint gviz: é a própria API pública de consulta do Google Sheets, já vem com
+        // CORS liberado (Access-Control-Allow-Origin: *) — não depende de proxy de terceiros,
+        // que é o que estava causando o erro "Status 403" (o corsproxy.io bloqueou o pedido).
+        const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv`;
+        const PUB_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSFttYGzkgH-6VxHYrTAz7ChIRdk3j2ZnP1GpF7OVzX4HJ-D9bfEgiorhJIasGHBbF0CQh6MXEgKEpx/pub?output=csv';
+
         const DATA_SOURCE_BASE = (window.DATA_SOURCE_URL && String(window.DATA_SOURCE_URL).trim())
             ? String(window.DATA_SOURCE_URL).trim()
-            : 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSFttYGzkgH-6VxHYrTAz7ChIRdk3j2ZnP1GpF7OVzX4HJ-D9bfEgiorhJIasGHBbF0CQh6MXEgKEpx/pub?output=csv';
+            : GVIZ_URL;
 
-        const csvUrl = DATA_SOURCE_BASE.includes('?')
-            ? `${DATA_SOURCE_BASE}&t=${Date.now()}`
-            : `${DATA_SOURCE_BASE}?t=${Date.now()}`;
+        const withCacheBuster = (url) => url.includes('?') ? `${url}&t=${Date.now()}` : `${url}?t=${Date.now()}`;
 
-        const directUrl = csvUrl;
-        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(csvUrl)}`;
+        // Ordem de tentativas: 1) fonte configurada/gviz (sem proxy) 2) link publicado direto
+        // 3) proxies de CORS como último recurso, caso o navegador bloqueie o acesso direto.
+        const candidateUrls = [withCacheBuster(DATA_SOURCE_BASE)];
+        if (DATA_SOURCE_BASE !== PUB_CSV_URL) candidateUrls.push(withCacheBuster(PUB_CSV_URL));
+        const proxyTarget = candidateUrls[candidateUrls.length - 1];
+        candidateUrls.push(`https://api.allorigins.win/raw?url=${encodeURIComponent(proxyTarget)}`);
+        candidateUrls.push(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(proxyTarget)}`);
+        candidateUrls.push(`https://corsproxy.io/?${encodeURIComponent(proxyTarget)}`);
 
         try {
             if(!silent && btn) {
@@ -603,16 +699,18 @@
                 document.body.style.cursor = 'wait';
             }
 
-            let response;
-            try {
-                response = await fetch(directUrl, { cache: 'no-store' });
-            } catch (e) {
-                response = null;
+            let response = null;
+            let lastError = null;
+            for (const url of candidateUrls) {
+                try {
+                    const r = await fetch(url, { cache: 'no-store' });
+                    if (r.ok) { response = r; break; }
+                    lastError = new Error(`Status ${r.status}`);
+                } catch (e) {
+                    lastError = e;
+                }
             }
-            if (!response || !response.ok) {
-                response = await fetch(proxyUrl, { cache: 'no-store' });
-            }
-            if (!response.ok) throw new Error(`Status ${response.status}`);
+            if (!response) throw (lastError || new Error('Falha desconhecida ao buscar a planilha'));
             const rawText = await response.text();
 
             if (!rawText || rawText.length < 10) throw new Error("Arquivo vazio");
@@ -709,7 +807,7 @@
                 alert(`⚠️ Atenção: O arquivo foi baixado mas nenhum dado foi identificado.\n\nPrimeira linha do arquivo:\n${JSON.stringify(jsonData[0] || "Vazia")}\n\nVerifique se as colunas 'Mês' e 'Nome' existem.`);
             } else {
                 database = newDatabase;
-                populateFilters(); populateColabFilters(); populateTrendFilters(); populateFatFilters(); filterData();
+                populateFilters(); populateColabFilters(); populateTrendFilters(); populateFatFilters(); populatePeriodFilters(); filterData();
                 if(document.getElementById('tab-colaboradores').classList.contains('active')) renderColaboradores();
                 if(document.getElementById('tab-faturamento').classList.contains('active')) renderFaturamento();
                 if(!silent) alert(`✅ SUCESSO!\n\nNovos: ${novos}\nAtualizados: ${atualizados}`);
@@ -761,24 +859,14 @@
 
     function populateTrendFilters() {
         const empSel = document.getElementById('trendEmpresaFilter');
-        const perSel = document.getElementById('trendPeriodFilter');
-        if (!empSel || !perSel) return;
+        if (!empSel) return;
 
         const currentEmp = empSel.value || "TODOS";
-        const currentPer = perSel.value || "ALL";
 
         const empresas = ["TODOS", ...new Set(database.map(r => r.empresa))].sort();
         empSel.innerHTML = "";
         empresas.forEach(v => empSel.innerHTML += `<option value="${v}">Empresa: ${v}</option>`);
         empSel.value = empresas.includes(currentEmp) ? currentEmp : "TODOS";
-
-        const monthOrder = ["Dez/25", "Jan/26", "Fev/26", "Mar/26", "Abr/26", "Mai/26", "Jun/26", "Jul/26", "Ago/26", "Set/26", "Out/26", "Nov/26"];
-        const mesesDb = [...new Set(database.map(r => r.mes))];
-        mesesDb.sort((a,b) => monthOrder.indexOf(a) - monthOrder.indexOf(b));
-        perSel.innerHTML = "";
-        perSel.innerHTML += `<option value="ALL">Período: Todos</option>`;
-        mesesDb.forEach(v => perSel.innerHTML += `<option value="${v}">${v}</option>`);
-        perSel.value = (currentPer === "ALL" || mesesDb.includes(currentPer)) ? currentPer : "ALL";
 
         updateTrendColabFilter();
     }
@@ -810,17 +898,9 @@
         const tf = document.getElementById('tomadorFilter').value;
         const ef = document.getElementById('empresaFilter').value;
         const q = document.getElementById('tableSearch').value.toLowerCase();
-        
-        const monthsS2 = ["Jun/26", "Jul/26", "Ago/26", "Set/26", "Out/26", "Nov/26"];
-        
-        let agg = {};
-        database.forEach(row => {
-            if (mf === "2SEM26") {
-                if (!monthsS2.includes(row.mes)) return;
-            } else if (mf !== "ALL" && row.mes !== mf) {
-                return;
-            }
 
+        let agg = {};
+        filtrarPorPeriodo(database, mf).forEach(row => {
             if (q && !row.name.toLowerCase().includes(q)) return;
             if (tf !== "TODOS" && row.tomador !== tf) return;
             if (ef !== "TODOS" && row.empresa !== ef) return;
@@ -982,7 +1062,7 @@
             database.push(newRecord); newRecordsCount++;
         });
 
-        populateFilters(); populateColabFilters(); populateTrendFilters(); populateFatFilters(); filterData(); renderColaboradores();
+        populateFilters(); populateColabFilters(); populateTrendFilters(); populateFatFilters(); populatePeriodFilters(); filterData(); renderColaboradores();
         alert(`Sucesso!\nColaborador "${nameInput}" salvo com ${newRecordsCount} registros.`);
         closeEditModal();
     }
@@ -994,14 +1074,14 @@
             const initialLength = database.length;
             database = database.filter(d => d.name !== editingOriginalName);
             if (database.length === initialLength) { alert("Erro: Não foi possível encontrar os registros para excluir."); } 
-            else { populateFilters(); populateColabFilters(); populateTrendFilters(); populateFatFilters(); filterData(); renderColaboradores(); alert("Colaborador excluído com sucesso."); closeEditModal(); }
+            else { populateFilters(); populateColabFilters(); populateTrendFilters(); populateFatFilters(); populatePeriodFilters(); filterData(); renderColaboradores(); alert("Colaborador excluído com sucesso."); closeEditModal(); }
         }
     }
 
     const commonOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#94a3b8' } } }, scales: { y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } }, x: { grid: { display: false }, ticks: { color: '#94a3b8' } } } };
 
     function renderCharts(d){ 
-        const monthOrder = ["Dez/25", "Jan/26", "Fev/26", "Mar/26", "Abr/26", "Mai/26", "Jun/26", "Jul/26", "Ago/26", "Set/26", "Out/26", "Nov/26"];
+        const monthOrder = [...new Set(database.map(r => r.mes))].filter(Boolean).sort(compararMeses);
 
         const trendEmp = (document.getElementById('trendEmpresaFilter')?.value) || "TODOS";
         const trendCol = (document.getElementById('trendColabFilter')?.value) || "TODOS";
@@ -1011,7 +1091,7 @@
 
         if (trendEmp !== "TODOS") trendRows = trendRows.filter(r => r.empresa === trendEmp);
         if (trendCol !== "TODOS") trendRows = trendRows.filter(r => r.name === trendCol);
-        if (trendPer !== "ALL")   trendRows = trendRows.filter(r => r.mes === trendPer);
+        trendRows = filtrarPorPeriodo(trendRows, trendPer);
 
         const prodByMonth = {};
         const despByMonth = {};
@@ -1025,7 +1105,7 @@
         });
 
         let labelsTrend = monthOrder.filter(m => (prodByMonth[m] > 0 || despByMonth[m] > 0));
-        if (trendPer !== "ALL") labelsTrend = [trendPer]; 
+        if (trendPer !== "ALL" && !isSemestreKey(trendPer)) labelsTrend = [trendPer];
 
         createTrendChart(
             'chartTrend',
@@ -1288,10 +1368,10 @@
         tableContainer.classList.add('xl:col-span-3'); 
         currentOpenUser = null; 
     }
-    function updateSidePanelContent(name) { const pD = database.filter(r => r.name === name); if(!pD.length) return; const mf = document.getElementById('monthFilter').value; const fH = mf === "ALL" ? pD : pD.filter(r => r.mes === mf); const lR = fH[fH.length - 1] || pD[0]; document.getElementById('resumoName').innerText = lR.name; document.getElementById('resumoEmpresaTag').innerText = lR.empresa; document.getElementById('resumoTomadorTag').innerText = lR.tomador; document.getElementById('resumoEmpresaTag').className = `text-[10px] font-bold uppercase px-3 py-1 rounded-full ${getCompanyBadgeClass(lR.empresa)}`; document.getElementById('resumoTomadorTag').className = `text-[10px] font-bold uppercase px-3 py-1 rounded-full ${getTomadorBadgeClass(lR.tomador)}`; const tP = fH.reduce((acc, r) => acc + (r.censo_v || 0) + (r.fisc_v || 0), 0); const tD = fH.reduce((acc, r) => acc + (r.despesa_total || 0), 0); const sal = tP - tD; document.getElementById('resumoValueFinal').innerText = fmt.format(sal); document.getElementById('resumoValueFinal').className = `text-4xl font-black sensitive-data ${sal < 0 ? 'text-rose-500' : 'text-emerald-500'}`; document.getElementById('resumoNegativeNotice').innerText = sal < 0 ? "Saldo devedor." : ""; const c = document.getElementById('resumoContent'); c.innerHTML = ''; fH.forEach(m => { const pt = (m.censo_v || 0) + (m.fisc_v || 0); const dt = (m.despesa_total || 0); const card = document.createElement('div'); card.className = "bg-slate-800/50 border border-slate-700 rounded-[2rem] shadow-sm p-6 space-y-4 hover:bg-slate-800 transition-all"; card.innerHTML = ` <div class="flex justify-between items-center border-b pb-3 border-slate-700"> <span class="text-xs font-black text-blue-500 uppercase tracking-widest">${m.mes}</span> <span class="text-[9px] font-bold text-slate-500 bg-slate-900 px-2 py-1 rounded border border-slate-700">REGISTRO</span> </div> <div class="grid grid-cols-2 gap-4 text-[11px]"> <div class="space-y-2"> <p class="text-[9px] font-black uppercase text-slate-500 tracking-tighter">Produção</p> <div class="flex justify-between text-slate-300"><span>Censo:</span> <strong>${fmt.format(m.censo_v)} <span class="text-xs text-slate-500 font-normal">(${m.censo_q || 0} pts)</span></strong></div> <div class="flex justify-between text-slate-300"><span>Fisc:</span> <strong>${fmt.format(m.fisc_v)} <span class="text-xs text-slate-500 font-normal">(${m.fisc_q || 0} pts)</span></strong></div> </div> <div class="space-y-2 border-l pl-4 border-slate-700"> <p class="text-[9px] font-black uppercase text-slate-500 tracking-tighter">Detalhamento Despesas</p> <div class="flex justify-between text-slate-300"><span>Premiação:</span> <span class="text-blue-400 font-bold">${fmt.format(m.premiacao)}</span></div> <div class="flex justify-between text-slate-300"><span>Desloc/Adt:</span> <span class="text-amber-400 font-bold">${fmt.format(m.deslocamento)}</span></div> </div> </div> <div class="grid grid-cols-2 gap-3 pt-2"> <div class="bg-slate-900 p-3 rounded-2xl border border-slate-700 text-center"> <p class="text-[9px] font-black uppercase text-slate-500 mb-1">Total Produção</p> <p class="text-sm font-black text-slate-100 sensitive-data">${fmt.format(pt)}</p> </div> <div class="bg-rose-950/20 p-3 rounded-2xl border border-rose-900/30 text-center"> <p class="text-[9px] font-black uppercase text-rose-500 mb-1">Total Saídas</p> <p class="text-sm font-black text-rose-400 sensitive-data">${fmt.format(dt)}</p> </div> </div> `; c.appendChild(card); }); applyPrivacy(); }
+    function updateSidePanelContent(name) { const pD = database.filter(r => r.name === name); if(!pD.length) return; const mf = document.getElementById('monthFilter').value; const fH = filtrarPorPeriodo(pD, mf); const lR = fH[fH.length - 1] || pD[0]; document.getElementById('resumoName').innerText = lR.name; document.getElementById('resumoEmpresaTag').innerText = lR.empresa; document.getElementById('resumoTomadorTag').innerText = lR.tomador; document.getElementById('resumoEmpresaTag').className = `text-[10px] font-bold uppercase px-3 py-1 rounded-full ${getCompanyBadgeClass(lR.empresa)}`; document.getElementById('resumoTomadorTag').className = `text-[10px] font-bold uppercase px-3 py-1 rounded-full ${getTomadorBadgeClass(lR.tomador)}`; const tP = fH.reduce((acc, r) => acc + (r.censo_v || 0) + (r.fisc_v || 0), 0); const tD = fH.reduce((acc, r) => acc + (r.despesa_total || 0), 0); const sal = tP - tD; document.getElementById('resumoValueFinal').innerText = fmt.format(sal); document.getElementById('resumoValueFinal').className = `text-4xl font-black sensitive-data ${sal < 0 ? 'text-rose-500' : 'text-emerald-500'}`; document.getElementById('resumoNegativeNotice').innerText = sal < 0 ? "Saldo devedor." : ""; const c = document.getElementById('resumoContent'); c.innerHTML = ''; fH.forEach(m => { const pt = (m.censo_v || 0) + (m.fisc_v || 0); const dt = (m.despesa_total || 0); const card = document.createElement('div'); card.className = "bg-slate-800/50 border border-slate-700 rounded-[2rem] shadow-sm p-6 space-y-4 hover:bg-slate-800 transition-all"; card.innerHTML = ` <div class="flex justify-between items-center border-b pb-3 border-slate-700"> <span class="text-xs font-black text-blue-500 uppercase tracking-widest">${m.mes}</span> <span class="text-[9px] font-bold text-slate-500 bg-slate-900 px-2 py-1 rounded border border-slate-700">REGISTRO</span> </div> <div class="grid grid-cols-2 gap-4 text-[11px]"> <div class="space-y-2"> <p class="text-[9px] font-black uppercase text-slate-500 tracking-tighter">Produção</p> <div class="flex justify-between text-slate-300"><span>Censo:</span> <strong>${fmt.format(m.censo_v)} <span class="text-xs text-slate-500 font-normal">(${m.censo_q || 0} pts)</span></strong></div> <div class="flex justify-between text-slate-300"><span>Fisc:</span> <strong>${fmt.format(m.fisc_v)} <span class="text-xs text-slate-500 font-normal">(${m.fisc_q || 0} pts)</span></strong></div> </div> <div class="space-y-2 border-l pl-4 border-slate-700"> <p class="text-[9px] font-black uppercase text-slate-500 tracking-tighter">Detalhamento Despesas</p> <div class="flex justify-between text-slate-300"><span>Premiação:</span> <span class="text-blue-400 font-bold">${fmt.format(m.premiacao)}</span></div> <div class="flex justify-between text-slate-300"><span>Desloc/Adt:</span> <span class="text-amber-400 font-bold">${fmt.format(m.deslocamento)}</span></div> </div> </div> <div class="grid grid-cols-2 gap-3 pt-2"> <div class="bg-slate-900 p-3 rounded-2xl border border-slate-700 text-center"> <p class="text-[9px] font-black uppercase text-slate-500 mb-1">Total Produção</p> <p class="text-sm font-black text-slate-100 sensitive-data">${fmt.format(pt)}</p> </div> <div class="bg-rose-950/20 p-3 rounded-2xl border border-rose-900/30 text-center"> <p class="text-[9px] font-black uppercase text-rose-500 mb-1">Total Saídas</p> <p class="text-sm font-black text-rose-400 sensitive-data">${fmt.format(dt)}</p> </div> </div> `; c.appendChild(card); }); applyPrivacy(); }
 
     function downloadTemplate() { const wb = XLSX.utils.book_new(); const headers = ["Mês", "Empresa", "Nome", "Tomador", "Qtd Censo", "Produção Censo (R$)", "Qtd Fisc", "Produção Fiscalização (R$)", "Despesa Total (R$)", "Premiação (R$)", "Deslocamento (R$)"]; const exampleData = [ ["Dez/25", "G Lux", "Fulano de Tal", "EQUATORIAL PI", 1000, 1500.50, 0, 0, 800, 100, 700], ["Jan/26", "G Lux", "Beltrano", "EM CASA", 0, 0, 500, 3200.00, 1200, 0, 1200] ]; const ws = XLSX.utils.aoa_to_sheet([headers, ...exampleData]); XLSX.utils.book_append_sheet(wb, ws, "DADOS_MENSAL"); XLSX.writeFile(wb, "Modelo_Importacao_Mensal_JVM_Pontos.xlsx"); }
-    async function handleImport(event) { const file = event.target.files[0]; if (!file) return; const data = await file.arrayBuffer(); const workbook = XLSX.read(data); const firstSheet = workbook.Sheets[workbook.SheetNames[0]]; const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 }); let newEntries = []; for(let i = 1; i < jsonData.length; i++) { const row = jsonData[i]; if(!row[0] || !row[2]) continue; const newRecord = { mes: String(row[0]).trim(), empresa: String(row[1] || "G Lux").trim(), name: String(row[2]).trim().toUpperCase(), tomador: String(row[3]).trim().toUpperCase(), censo_q: parseFloat(row[4]) || 0, censo_v: parseFloat(row[5]) || 0, fisc_q: parseFloat(row[6]) || 0, fisc_v: parseFloat(row[7]) || 0, despesa_total: parseFloat(row[8]) || 0, premiacao: parseFloat(row[9]) || 0, deslocamento: parseFloat(row[10]) || 0 }; const existingIdx = database.findIndex(d => d.mes === newRecord.mes && d.name === newRecord.name); if(existingIdx >= 0) { database[existingIdx] = newRecord; } else { database.push(newRecord); } } populateFilters(); populateColabFilters(); populateTrendFilters(); populateFatFilters(); filterData(); if(document.getElementById('tab-colaboradores').classList.contains('active')) renderColaboradores(); alert(`Importação concluída.`); }
+    async function handleImport(event) { const file = event.target.files[0]; if (!file) return; const data = await file.arrayBuffer(); const workbook = XLSX.read(data); const firstSheet = workbook.Sheets[workbook.SheetNames[0]]; const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 }); let newEntries = []; for(let i = 1; i < jsonData.length; i++) { const row = jsonData[i]; if(!row[0] || !row[2]) continue; const newRecord = { mes: String(row[0]).trim(), empresa: String(row[1] || "G Lux").trim(), name: String(row[2]).trim().toUpperCase(), tomador: String(row[3]).trim().toUpperCase(), censo_q: parseFloat(row[4]) || 0, censo_v: parseFloat(row[5]) || 0, fisc_q: parseFloat(row[6]) || 0, fisc_v: parseFloat(row[7]) || 0, despesa_total: parseFloat(row[8]) || 0, premiacao: parseFloat(row[9]) || 0, deslocamento: parseFloat(row[10]) || 0 }; const existingIdx = database.findIndex(d => d.mes === newRecord.mes && d.name === newRecord.name); if(existingIdx >= 0) { database[existingIdx] = newRecord; } else { database.push(newRecord); } } populateFilters(); populateColabFilters(); populateTrendFilters(); populateFatFilters(); populatePeriodFilters(); filterData(); if(document.getElementById('tab-colaboradores').classList.contains('active')) renderColaboradores(); alert(`Importação concluída.`); }
     function downloadDashboard() { const dataScript = `\n<script id="persisted-data">window.savedDatabase = ${JSON.stringify(database)};<\/script>`; let htmlContent = document.documentElement.outerHTML; htmlContent = htmlContent.replace(/<script id="persisted-data">.*?<\/script>/s, ''); const insertPosition = htmlContent.indexOf('</body>'); htmlContent = htmlContent.slice(0, insertPosition) + dataScript + htmlContent.slice(insertPosition); const blob = new Blob([htmlContent], {type: 'text/html'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Dashboard_JVM_2026_Completo.html'; a.click(); }
     function exportExcel() { const wb = XLSX.utils.book_new(); const rows = [["Mês", "Empresa", "Nome", "Tomador", "Qtd Censo", "Produção Censo (R$)", "Qtd Fisc", "Produção Fiscalização (R$)", "Despesa Total (R$)", "Premiação (R$)", "Deslocamento (R$)"]]; database.forEach(d => { rows.push([d.mes, d.empresa, d.name, d.tomador, d.censo_q, d.censo_v, d.fisc_q, d.fisc_v, d.despesa_total, d.premiacao, d.deslocamento]); }); const ws = XLSX.utils.aoa_to_sheet(rows); XLSX.utils.book_append_sheet(wb, ws, "Base_Consolidada"); XLSX.writeFile(wb, "JVM_Base_Completa_2026.xlsx"); }
 
@@ -1380,16 +1460,12 @@
         const empF = document.getElementById('fatEmpresaFilter').value;
         const tomF = document.getElementById('fatTomadorFilter').value;
         const colF = document.getElementById('fatColabFilter').value;
-        const monthsS2 = ["Jun/26", "Jul/26", "Ago/26", "Set/26", "Out/26", "Nov/26"];
 
         let agg = {};
         let totalCenso = 0;
         let totalFisc = 0;
 
-        database.forEach(row => {
-            if (monthF === "2SEM26") { if (!monthsS2.includes(row.mes)) return; }
-            else if (monthF !== "ALL" && row.mes !== monthF) return;
-            
+        filtrarPorPeriodo(database, monthF).forEach(row => {
             if (empF !== "TODOS" && row.empresa !== empF) return;
             if (tomF !== "TODOS" && row.tomador !== tomF) return;
             if (colF && colF !== "TODOS" && row.name !== colF) return;

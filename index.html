@@ -49,7 +49,9 @@
 </head>
 <body class="overflow-x-hidden custom-scrollbar">
 
+<!-- NAVBAR (Inalterado) -->
 <nav class="sticky top-0 z-50 glass-header px-4 md:px-6 py-4 flex flex-col md:flex-row items-start md:items-center justify-between no-print shadow-xl gap-4">
+    <!-- ... Resto da Navbar mantido idêntico ... -->
     <div class="flex items-center gap-4 w-full md:w-auto justify-between">
         <div class="flex items-center gap-4">
             <div class="bg-blue-600 p-2 rounded-xl shadow-lg shadow-blue-900/50">
@@ -153,6 +155,8 @@
 </nav>
 
 <main class="w-full max-w-[1800px] mx-auto p-4 md:p-8 space-y-6 md:space-y-8">
+    
+    <!-- SEÇÃO VISÃO GERAL -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center no-print gap-4" id="main-filter-bar">
         <h2 class="text-xl md:text-2xl font-black italic tracking-tight" style="color: var(--text-main)">Fechamento <span class="text-blue-500">2026</span></h2>
         <div class="flex gap-4 w-full md:w-auto">
@@ -225,6 +229,7 @@
         </div>
 
         <div class="bg-slate-900 rounded-[2.5rem] shadow-2xl border border-slate-800 overflow-hidden flex flex-col min-h-[750px] sticky top-24 hidden animate-in slide-in-from-right duration-300 xl:relative xl:h-auto" id="resumoPanel" style="background: var(--bg-card); border-color: var(--border-card);">
+            <!-- ... Mantido Inalterado ... -->
             <div class="md:hidden p-4 bg-slate-900 border-b border-slate-800 flex items-center gap-2">
                 <button onclick="closeSidePanel()" class="flex items-center gap-2 text-white font-bold text-sm">
                     <span class="material-symbols-outlined">arrow_back</span> Voltar
@@ -258,8 +263,9 @@
         </div>
     </div>
 
+    <!-- SEÇÃO FATURAMENTO -->
     <div class="space-y-8 animate-in fade-in duration-500 hidden" id="section-faturamento">
-        
+        <!-- ... Mantido Inalterado ... -->
         <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center bg-slate-900/50 p-6 rounded-[2rem] border border-slate-800 gap-4" style="background-color: var(--bg-hover); border-color: var(--border-card);">
             <div>
                 <h4 class="text-xl font-black tracking-tight text-emerald-400"><span class="material-symbols-outlined text-lg align-middle">attach_money</span> Faturamento Real</h4>
@@ -355,6 +361,8 @@
             </div>
         </div>
     </div>
+    
+    <!-- SEÇÃO ESTATÍSTICAS (ALTERADA) -->
     <div class="space-y-8 animate-in fade-in duration-500 hidden" id="section-analytics">
         <div class="flex justify-between items-center mb-4"><div><h4 class="text-xl font-black tracking-tight" style="color: var(--text-main)">Análise Gerencial</h4><p class="text-xs text-slate-500 font-medium">Indicadores de desempenho e tendências.</p></div></div>
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -363,12 +371,20 @@
                     <span class="material-symbols-outlined text-blue-500 text-lg">trending_up</span> Evolução Financeira
                 </h4>
             
+                <!-- INCLUSÃO DOS NOVOS FILTROS -->
                 <div class="flex flex-col md:flex-row flex-wrap gap-3 mb-6">
                     <div class="relative w-full md:w-auto">
                         <select id="trendEmpresaFilter" onchange="handleTrendEmpresaChange()"
                             class="w-full md:w-auto bg-slate-800 border border-slate-700 rounded-xl text-[11px] font-black py-2.5 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 cursor-pointer min-w-[160px]">
                         </select>
                         <span class="material-symbols-outlined absolute right-3 top-2.5 text-slate-500 pointer-events-none text-sm">business</span>
+                    </div>
+
+                    <div class="relative w-full md:w-auto">
+                        <select id="trendTomadorFilter" onchange="handleTrendTomadorChange()"
+                            class="w-full md:w-auto bg-slate-800 border border-slate-700 rounded-xl text-[11px] font-black py-2.5 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 cursor-pointer min-w-[160px]">
+                        </select>
+                        <span class="material-symbols-outlined absolute right-3 top-2.5 text-slate-500 pointer-events-none text-sm">filter_alt</span>
                     </div>
             
                     <div class="relative w-full md:w-auto">
@@ -384,7 +400,18 @@
                         </select>
                         <span class="material-symbols-outlined absolute right-3 top-2.5 text-slate-500 pointer-events-none text-sm">calendar_month</span>
                     </div>
+
+                    <div class="relative w-full md:w-auto">
+                        <select id="trendServicoFilter" onchange="filterData()"
+                            class="w-full md:w-auto bg-slate-800 border border-slate-700 rounded-xl text-[11px] font-black py-2.5 px-4 outline-none text-slate-300 appearance-none pr-10 focus:ring-2 focus:ring-blue-500 cursor-pointer min-w-[160px]">
+                            <option value="TODOS">Serviço: TODOS</option>
+                            <option value="CENSO">Serviço: CENSO</option>
+                            <option value="FISC">Serviço: FISCALIZAÇÃO</option>
+                        </select>
+                        <span class="material-symbols-outlined absolute right-3 top-2.5 text-slate-500 pointer-events-none text-sm">work</span>
+                    </div>
                 </div>
+                <!-- FIM INCLUSÃO DOS NOVOS FILTROS -->
             
                 <div class="h-72"><canvas id="chartTrend"></canvas></div>
             </div>
@@ -394,7 +421,9 @@
         </div>
     </div>
 
+    <!-- SEÇÃO COLABORADORES (Inalterada) -->
     <div class="space-y-8 animate-in fade-in duration-500 hidden" id="section-colaboradores">
+       <!-- ... Mantido Inalterado ... -->
         <div class="dark-card rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-800">
             <div class="p-6 border-b border-slate-800 flex flex-col xl:flex-row justify-between items-start xl:items-center bg-slate-900/50 gap-4" style="background-color: var(--bg-hover); border-color: var(--border-card);">
                 <div>
@@ -446,6 +475,7 @@
         </div>
     </div>
 
+    <!-- MODAL (Inalterado) -->
     <div id="editModal" class="modal-overlay">
         <div class="dark-card modal-content p-4 md:p-8">
             <div class="flex justify-between items-start mb-6"><h3 class="text-xl font-black text-white" id="modalTitle">Editar Colaborador</h3><button onclick="closeEditModal()" class="text-slate-400 hover:text-white"><span class="material-symbols-outlined">close</span></button></div>
@@ -471,12 +501,8 @@
     let isLightMode = false;
     let currentSort = { column: 'name', direction: 'asc' };
 
-    // ==========================================================================
-    // MOTOR DE PERÍODOS (mês/semestre) - dinâmico e independente do ano
-    // ==========================================================================
     const MESES_ABREV = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
 
-    // Converte "Dez/25" -> {idx: 11, ano: 2025}
     function parseMesAno(mesStr) {
         if (!mesStr || typeof mesStr !== 'string') return null;
         const partes = mesStr.split('/');
@@ -488,25 +514,20 @@
         return { idx, ano: 2000 + yy };
     }
 
-    // Ordena cronologicamente strings tipo "Dez/25", "Jan/26"...
     function compararMeses(a, b) {
         const pa = parseMesAno(a), pb = parseMesAno(b);
         if (!pa || !pb) return 0;
         return (pa.ano * 12 + pa.idx) - (pb.ano * 12 + pb.idx);
     }
 
-    // Regra de negócio: 1º Semestre = Dez do ano anterior até Mai do ano corrente.
-    //                    2º Semestre = Jun até Nov do ano corrente.
-    // Retorna a chave do semestre ao qual o mês pertence, ex: "1SEM26", "2SEM26"
     function getSemestreKey(mesStr) {
         const p = parseMesAno(mesStr);
         if (!p) return null;
-        if (p.idx === 11) return `1SEM${String((p.ano + 1) % 100).padStart(2, '0')}`; // Dezembro entra no 1º sem. do ano seguinte
-        if (p.idx <= 4) return `1SEM${String(p.ano % 100).padStart(2, '0')}`; // Jan-Mai
-        return `2SEM${String(p.ano % 100).padStart(2, '0')}`; // Jun-Nov
+        if (p.idx === 11) return `1SEM${String((p.ano + 1) % 100).padStart(2, '0')}`;
+        if (p.idx <= 4) return `1SEM${String(p.ano % 100).padStart(2, '0')}`;
+        return `2SEM${String(p.ano % 100).padStart(2, '0')}`;
     }
 
-    // Dado uma chave de semestre ("1SEM26"), retorna todos os meses que o compõem
     function getMesesDoSemestre(semKey) {
         const sem = semKey[0];
         const yy = parseInt(semKey.slice(4), 10);
@@ -525,7 +546,6 @@
         return /^[12]SEM\d{2}$/.test(String(valor || ''));
     }
 
-    // Filtra um array de linhas do banco por um valor de período (ALL | "1SEM26" | "2SEM26" | "Jan/26")
     function filtrarPorPeriodo(rows, periodo) {
         if (!periodo || periodo === "ALL") return rows;
         if (isSemestreKey(periodo)) {
@@ -535,8 +555,6 @@
         return rows.filter(r => r.mes === periodo);
     }
 
-    // Monta o HTML de <option>/<optgroup> para um filtro de período completo,
-    // agrupando visualmente em: Todos / Semestres / Meses por ano.
     function montarOpcoesPeriodo(mesesDisponiveis) {
         const mesesValidos = [...new Set(mesesDisponiveis)].filter(m => parseMesAno(m) !== null);
         const mesesOrdenados = mesesValidos.sort(compararMeses);
@@ -580,8 +598,6 @@
         return html;
     }
 
-    // Popula os filtros de período (Visão Geral, Faturamento e Estatísticas)
-    // com base nos meses que realmente existem na base de dados.
     function populatePeriodFilters() {
         const mesesUnicos = [...new Set(database.map(r => r.mes))].filter(Boolean);
         const optionsHtml = montarOpcoesPeriodo(mesesUnicos);
@@ -598,13 +614,8 @@
             sel.value = valoresDisponiveis.includes(valorAtual) ? valorAtual : "ALL";
         });
     }
-    // ==========================================================================
 
-    // A base SEMPRE é alimentada pela sincronização com o Google Sheets (importFromGoogleSheets),
-    // chamada automaticamente em init(). Não há mais dados fixos/antigos aqui — isso evita que
-    // qualquer colaborador ou mês de exemplo apareça caso a planilha não tenha sido sincronizada ainda.
     let database = [];
-
     let chartInstances = {};
 
     function toggleDataMenu() {
@@ -652,7 +663,7 @@
             await importFromGoogleSheets(true); 
             loaded = true;
         } catch (e) {
-            console.warn('Falha ao carregar Google Sheets na inicialização. Usando base local, se existir.', e);
+            console.warn('Falha ao carregar Google Sheets na inicialização.', e);
         }
 
         if (!loaded && window.savedDatabase) database = window.savedDatabase;
@@ -669,11 +680,7 @@
     async function importFromGoogleSheets(silent=false) {
         const btn = document.getElementById('btnGoogleSheet');
         const originalText = (btn && btn.innerHTML) ? btn.innerHTML : '';
-        // ID da planilha (extraído do link "Google Planilhas" do menu de links do dashboard)
         const SPREADSHEET_ID = '1-RGHonXBGQqHQ2Reh4wxe_Nb4UCnbdTIeN9FKDh783w';
-        // Endpoint gviz: é a própria API pública de consulta do Google Sheets, já vem com
-        // CORS liberado (Access-Control-Allow-Origin: *) — não depende de proxy de terceiros,
-        // que é o que estava causando o erro "Status 403" (o corsproxy.io bloqueou o pedido).
         const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv`;
         const PUB_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSFttYGzkgH-6VxHYrTAz7ChIRdk3j2ZnP1GpF7OVzX4HJ-D9bfEgiorhJIasGHBbF0CQh6MXEgKEpx/pub?output=csv';
 
@@ -683,8 +690,6 @@
 
         const withCacheBuster = (url) => url.includes('?') ? `${url}&t=${Date.now()}` : `${url}?t=${Date.now()}`;
 
-        // Ordem de tentativas: 1) fonte configurada/gviz (sem proxy) 2) link publicado direto
-        // 3) proxies de CORS como último recurso, caso o navegador bloqueie o acesso direto.
         const candidateUrls = [withCacheBuster(DATA_SOURCE_BASE)];
         if (DATA_SOURCE_BASE !== PUB_CSV_URL) candidateUrls.push(withCacheBuster(PUB_CSV_URL));
         const proxyTarget = candidateUrls[candidateUrls.length - 1];
@@ -857,41 +862,76 @@
         filterData();
     }
 
+    // ========== NOVOS FILTROS EM CASCATA DA ABA ESTATÍSTICA ==========
     function populateTrendFilters() {
         const empSel = document.getElementById('trendEmpresaFilter');
         if (!empSel) return;
 
         const currentEmp = empSel.value || "TODOS";
-
         const empresas = ["TODOS", ...new Set(database.map(r => r.empresa))].sort();
+        
         empSel.innerHTML = "";
         empresas.forEach(v => empSel.innerHTML += `<option value="${v}">Empresa: ${v}</option>`);
         empSel.value = empresas.includes(currentEmp) ? currentEmp : "TODOS";
 
-        updateTrendColabFilter();
+        updateTrendTomadorFilter(); // Aciona em cascata
+    }
+
+    function updateTrendTomadorFilter() {
+        const empVal = document.getElementById('trendEmpresaFilter').value;
+        const tomSel = document.getElementById('trendTomadorFilter');
+        const currentTom = tomSel.value || "TODOS";
+        
+        let validTomadores = new Set();
+        database.forEach(d => {
+            if (empVal === "TODOS" || d.empresa === empVal) {
+                validTomadores.add(d.tomador);
+            }
+        });
+        
+        let tomadorNames = [...validTomadores].sort();
+        const tomadores = ["TODOS", ...tomadorNames];
+        
+        tomSel.innerHTML = "";
+        tomadores.forEach(v => tomSel.innerHTML += `<option value="${v}">Tomador: ${v}</option>`);
+        tomSel.value = tomadores.includes(currentTom) ? currentTom : "TODOS";
+        
+        updateTrendColabFilter(); // Aciona em cascata
     }
 
     function updateTrendColabFilter() {
         const empVal = document.getElementById('trendEmpresaFilter').value;
+        const tomVal = document.getElementById('trendTomadorFilter').value;
         const colSel = document.getElementById('trendColabFilter');
         const currentCol = colSel.value || "TODOS";
+        
         let validNames = new Set();
         database.forEach(d => {
-            if(empVal === "TODOS" || d.empresa === empVal) {
+            const matchEmp = (empVal === "TODOS" || d.empresa === empVal);
+            const matchTom = (tomVal === "TODOS" || d.tomador === tomVal);
+            if(matchEmp && matchTom) {
                 validNames.add(d.name);
             }
         });
+        
         let colabNames = [...validNames].sort();
         const colabs = ["TODOS", ...colabNames];
+        
         colSel.innerHTML = "";
         colabs.forEach(v => colSel.innerHTML += `<option value="${v}">Colaborador: ${v}</option>`);
         colSel.value = colabs.includes(currentCol) ? currentCol : "TODOS";
     }
 
     function handleTrendEmpresaChange() {
+        updateTrendTomadorFilter();
+        filterData();
+    }
+
+    function handleTrendTomadorChange() {
         updateTrendColabFilter();
         filterData();
     }
+    // =================================================================
 
     function filterData() {
         const mf = document.getElementById('monthFilter').value;
@@ -1080,16 +1120,23 @@
 
     const commonOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#94a3b8' } } }, scales: { y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } }, x: { grid: { display: false }, ticks: { color: '#94a3b8' } } } };
 
+    // =================================================================
+    // ATUALIZAÇÃO DA FUNÇÃO renderCharts() 
+    // AGORA TODOS OS GRÁFICOS RESPONDEM AOS FILTROS
+    // =================================================================
     function renderCharts(d){ 
         const monthOrder = [...new Set(database.map(r => r.mes))].filter(Boolean).sort(compararMeses);
 
         const trendEmp = (document.getElementById('trendEmpresaFilter')?.value) || "TODOS";
+        const trendTom = (document.getElementById('trendTomadorFilter')?.value) || "TODOS";
         const trendCol = (document.getElementById('trendColabFilter')?.value) || "TODOS";
         const trendPer = (document.getElementById('trendPeriodFilter')?.value) || "ALL";
+        const trendSrv = (document.getElementById('trendServicoFilter')?.value) || "TODOS";
 
         let trendRows = database.slice();
 
         if (trendEmp !== "TODOS") trendRows = trendRows.filter(r => r.empresa === trendEmp);
+        if (trendTom !== "TODOS") trendRows = trendRows.filter(r => r.tomador === trendTom);
         if (trendCol !== "TODOS") trendRows = trendRows.filter(r => r.name === trendCol);
         trendRows = filtrarPorPeriodo(trendRows, trendPer);
 
@@ -1099,7 +1146,10 @@
 
         trendRows.forEach(r => {
             if (prodByMonth[r.mes] !== undefined) {
-                prodByMonth[r.mes] += (r.censo_v || 0) + (r.fisc_v || 0);
+                let pCenso = (trendSrv === "TODOS" || trendSrv === "CENSO") ? (r.censo_v || 0) : 0;
+                let pFisc = (trendSrv === "TODOS" || trendSrv === "FISC") ? (r.fisc_v || 0) : 0;
+                
+                prodByMonth[r.mes] += (pCenso + pFisc);
                 despByMonth[r.mes] += (r.despesa_total || 0);
             }
         });
@@ -1114,9 +1164,13 @@
             labelsTrend.map(m => despByMonth[m])
         );
 
+        // GRÁFICO 2: Top 10 Ranking
         const saldoMap = {};
-        database.forEach(r => {
-            const saldo = ((r.censo_v || 0) + (r.fisc_v || 0)) - (r.despesa_total || 0);
+        trendRows.forEach(r => {
+            let pCenso = (trendSrv === "TODOS" || trendSrv === "CENSO") ? (r.censo_v || 0) : 0;
+            let pFisc = (trendSrv === "TODOS" || trendSrv === "FISC") ? (r.fisc_v || 0) : 0;
+            
+            const saldo = (pCenso + pFisc) - (r.despesa_total || 0);
             if (!saldoMap[r.name]) saldoMap[r.name] = 0;
             saldoMap[r.name] += saldo;
         });
@@ -1131,21 +1185,26 @@
 
         createHorizontalBarChart('chartRanking', labelsRanking, dataRanking);
 
+        // GRÁFICO 3: Mix de Produção
         const mixMap={}; 
-        database.forEach(x=>{
+        trendRows.forEach(x=>{
             if(!mixMap[x.tomador])mixMap[x.tomador]={c:0,f:0};
-            mixMap[x.tomador].c+=x.censo_v;
-            mixMap[x.tomador].f+=x.fisc_v;
+            if (trendSrv === "TODOS" || trendSrv === "CENSO") mixMap[x.tomador].c += (x.censo_v || 0);
+            if (trendSrv === "TODOS" || trendSrv === "FISC") mixMap[x.tomador].f += (x.fisc_v || 0);
         });
-        const mixL=Object.keys(mixMap); 
+        const mixL = Object.keys(mixMap).filter(k => mixMap[k].c > 0 || mixMap[k].f > 0); 
         createStackedBarChart('chartMix', mixL, mixL.map(l=>mixMap[l].c), mixL.map(l=>mixMap[l].f));
 
+        // GRÁFICO 4: Share por Empresa
         const shMap={}; 
-        database.forEach(x=>{
+        trendRows.forEach(x=>{
             if(!shMap[x.empresa])shMap[x.empresa]=0;
-            shMap[x.empresa]+=(x.censo_v+x.fisc_v);
+            let pCenso = (trendSrv === "TODOS" || trendSrv === "CENSO") ? (x.censo_v || 0) : 0;
+            let pFisc = (trendSrv === "TODOS" || trendSrv === "FISC") ? (x.fisc_v || 0) : 0;
+            
+            shMap[x.empresa] += (pCenso + pFisc);
         });
-        const shL=Object.keys(shMap); 
+        const shL = Object.keys(shMap).filter(k => shMap[k] > 0); 
         createDoughnutChart('chartShare', shL, shL.map(l=>shMap[l]));
     }
     
@@ -1354,7 +1413,6 @@
         currentOpenUser = name; 
         panel.classList.remove('hidden'); 
         
-        // Mantém a lógica desktop
         tableContainer.classList.remove('xl:col-span-3'); 
         tableContainer.classList.add('xl:col-span-2'); 
         
